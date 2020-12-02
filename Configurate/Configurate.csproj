@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Skyrim_Logo.png" />
+    <None Remove="Witcher 3_Logo.png" />
+    <None Remove="Darkest Dungeon_Logo.png" />
+    <None Remove="Sun Rings_Logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Sun Rings.curf" />
+    <None Remove="Skyrim.curf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ini-parser" Version="2.5.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\Skyrim_Logo.png" />
+    <Resource Include="Images\Witcher 3_Logo.png" />
+    <Resource Include="Images\Darkest Dungeon_Logo.png" />
+    <Resource Include="Images\Sun Rings_Logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="CURF Files\" />
+    <Resource Include="CURF Files\Skyrim.curf" />
+    <Resource Include="CURF Files\Sun Rings.curf" />
+  </ItemGroup>
+
+</Project>
