@@ -1,6 +1,7 @@
 ﻿using IniParser;
 using IniParser.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using System.IO;
 using System.Windows;
@@ -64,7 +65,7 @@ namespace Configurate.Tools
 
         private static Dictionary<string, string> ParseJson(string path)
         {
-            
+            /*
             var answer = new Dictionary<string, string>();
 
             var contents = File.ReadAllText(path);
@@ -89,7 +90,27 @@ namespace Configurate.Tools
             }
 
             return answer;
+            */
 
+            var dic = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(path));
+            var answer = new Dictionary<string, string>();
+
+            foreach (var property in dic.Properties())
+            {
+                if (property.HasValues)
+                {
+                    foreach (var child in property.Children())
+                    {
+                        var obj = child.ToObject<JValue>();
+                        
+                        //foreach (var p in obj.Properties()) answer.Add(p.Name, p.Value.ToString());
+                    }
+                }
+                else
+                    answer.Add(property.Name, property.Value.ToString());
+            } 
+
+            return answer;
         }
 
         public static Dictionary<string, string> ParseCurf(string curfPath, Dictionary<string, string> currentDictionary)
