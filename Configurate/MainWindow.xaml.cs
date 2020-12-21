@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Configurate.Managers;
 using Configurate.Tools;
+using System.Diagnostics;
 
 namespace Configurate
 {
@@ -41,6 +42,10 @@ namespace Configurate
         private void SetUpButtons()
         {
             SaveButton.Click += new RoutedEventHandler(SaveCurrentFile);
+            ExportButton.Click += new RoutedEventHandler(ExportCurrentFile);
+            ImportButton.Click += new RoutedEventHandler(ImportFile);
+            OpenLocationButton.Click += new RoutedEventHandler(OpenCurrentFileAtLocation);
+            EditButton.Click += new RoutedEventHandler(EditApplicationLocation);
             CloseButton.Click += new RoutedEventHandler(HideSettingsGrid);
         }
 
@@ -61,6 +66,51 @@ namespace Configurate
         {
             SettingsHoldGrid.Visibility = Visibility.Hidden;
             SettingsGroupBox.Header = "Select an Application";
+        }
+
+        private void OpenCurrentFileAtLocation(object sender, RoutedEventArgs eventArgs)
+        {
+            var pathSplit = ApplicationsManager.CurrentApplication.Path.Split('/');
+
+            string finalPath = "";
+
+            for (int i = 0; i < pathSplit.Length - 1; i++)
+            {
+                finalPath += pathSplit[i] + "/";
+            }
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = finalPath,
+                UseShellExecute = true
+            };
+
+            Process.Start(startInfo);
+        }
+
+        private void ExportCurrentFile(object sender, RoutedEventArgs eventArgs)
+        {
+            var dic = new Dictionary<string, string>();
+
+            foreach (var setting in ApplicationsManager.SettingsList)
+            {
+                dic.Add(setting.Label.Content.ToString(), setting.Box.Text.ToString());
+            }
+
+            bool exported = FileUtils.SaveAs(dic, ApplicationsManager.CurrentApplication.Path);
+            if (exported) MessageBox.Show("File Exported Successfuly", "Success");
+        }
+
+        private void ImportFile(object sender, RoutedEventArgs eventArgs)
+        {
+
+        }
+
+        private void EditApplicationLocation(object sender, RoutedEventArgs eventArgs)
+        {
+            string newPath = FileUtils.GetNewFilePath(ApplicationsManager.CurrentApplication.Path).Replace('\\', '/');
+            ApplicationsManager.CurrentApplication.SetPath(newPath);
+            MessageBox.Show(ApplicationsManager.CurrentApplication.Name + "'s Path is now: " + ApplicationsManager.CurrentApplication.Path, "Success");
         }
     }
 }

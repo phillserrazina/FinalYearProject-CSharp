@@ -3,9 +3,12 @@ using IniParser.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using System;
 using System.IO;
 using System.Windows;
 using System.Collections.Generic;
+
+using Microsoft.Win32;
 
 namespace Configurate.Tools
 {
@@ -39,6 +42,65 @@ namespace Configurate.Tools
                 default:
                     MessageBox.Show("Unsupported File Type: " + fileType, "Error");
                     return;
+            }
+        }
+
+        public static bool SaveAs(Dictionary<string, string> dic, string path)
+        {
+            var fileToExport = GetFileText(dic, path);
+
+            string fileType = Path.GetExtension(path);
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Title = "Export",
+                Filter = fileType.ToUpper() + " File (*" + fileType + ")|*" + fileType,
+                DefaultExt = "." + fileType
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                File.WriteAllText(saveFileDialog.FileName, fileToExport);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static string GetNewFilePath(string path)
+        {
+            string fileType = Path.GetExtension(path);
+
+            var dialog = new OpenFileDialog
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Title = "Select New Location",
+                Filter = fileType.ToUpper() + " File (*" + fileType + ")|*" + fileType,
+                DefaultExt = "." + fileType
+            };
+
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                return dialog.FileName;
+            }
+
+            return "";
+        }
+
+        private static string GetFileText(Dictionary<string, string> dic, string path)
+        {
+            var fileType = Path.GetExtension(path);
+
+            switch (fileType)
+            {
+                case ".ini": return GetIniText(path);
+
+                default:
+                    MessageBox.Show("Unsupported File Type: " + fileType, "Error");
+                    return "";
             }
         }
 
@@ -142,6 +204,18 @@ namespace Configurate.Tools
 
             return answer;
         }
+        #endregion
+
+        #region File Getters
+
+        private static string GetIniText(string path)
+        {
+            var parser = new FileIniDataParser();
+            IniData data = parser.ReadFile(path);
+
+            return data.ToString();
+        }
+
         #endregion
 
         #region Save

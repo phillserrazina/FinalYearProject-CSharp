@@ -40,5 +40,7 @@ namespace Configurate.TemplateObjects
             //if (!File.Exists(curfAppDataPath))
             //    File.Copy(iconURI.LocalPath, curfAppDataPath);
         }
+
+        public void SetPath(string path) => Path = path;
     }
 }
