@@ -22,10 +22,11 @@ namespace Configurate.Managers
         {
             ApplicationsList = new List<ApplicationInfoTO>
             {
-                new ApplicationInfoTO("Skyrim", "D:/QT Projects/ConfigurateProject/TestSaveFiles/Skyrim.ini"),
+                new ApplicationInfoTO("Skyrim", $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/My Games/Skyrim/Skyrim.ini"),
+                new ApplicationInfoTO("Skyrim Special Edition", $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/My Games/Skyrim Special Edition/Skyrim.ini"),
                 new ApplicationInfoTO("Witcher 3", "D:/QT Projects/ConfigurateProject/TestSaveFiles/witcherConfigTest.txt"),
-                new ApplicationInfoTO("Sun Rings", "D:/QT Projects/ConfigurateProject/TestSaveFiles/sunRingsTest.json"),
-                new ApplicationInfoTO("Darkest Dungeon", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Darkest/persist.options.json"))
+                new ApplicationInfoTO("Sun Rings", ""),
+                new ApplicationInfoTO("Darkest Dungeon", $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/Darkest/persist.options.json")
             };
         }
 

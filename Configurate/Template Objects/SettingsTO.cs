@@ -6,6 +6,7 @@ namespace Configurate.TemplateObjects
     {
         public Grid Grid { get; private set; }
         public Label Label { get; private set; }
+        public string RealPath { get; private set; }
         public TextBox Box { get; private set; }
 
         public SettingsTO(Grid Grid, Label Label, TextBox Box)
@@ -14,5 +15,7 @@ namespace Configurate.TemplateObjects
             this.Label = Label;
             this.Box = Box;
         }
+
+        public void SetRealPath(string s) => RealPath = s;
     }
 }

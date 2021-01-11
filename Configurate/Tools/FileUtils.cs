@@ -68,14 +68,12 @@ namespace Configurate.Tools
             return false;
         }
 
-        public static string GetNewFilePath(string path)
+        public static string GetNewFilePath(string fileType, string windowTitle)
         {
-            string fileType = Path.GetExtension(path);
-
             var dialog = new OpenFileDialog
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                Title = "Select New Location",
+                Title = windowTitle,
                 Filter = fileType.ToUpper() + " File (*" + fileType + ")|*" + fileType,
                 DefaultExt = "." + fileType
             };
@@ -89,6 +87,8 @@ namespace Configurate.Tools
 
             return "";
         }
+
+        public static string GetFileType(string path) => Path.GetExtension(path);
 
         private static string GetFileText(Dictionary<string, string> dic, string path)
         {
@@ -127,7 +127,7 @@ namespace Configurate.Tools
 
         private static Dictionary<string, string> ParseJson(string path)
         {
-            /*
+            
             var answer = new Dictionary<string, string>();
 
             var contents = File.ReadAllText(path);
@@ -145,15 +145,23 @@ namespace Configurate.Tools
                     
                     if (key == reader.Value.ToString()) continue;
 
+                    if (key.Contains('['))
+                    {
+                        var splitKey = key.Split('[');
+                        key = splitKey[0];
+                    }
+
                     //key = string.Format("{0} ({1})", key, Path.GetExtension(reader.ValueType.ToString()).Substring(1));
                     if (!answer.ContainsKey(key))
                         answer.Add(key, reader.Value.ToString());
+                    else answer[key] += $", {reader.Value}";
                 }
             }
 
             return answer;
-            */
+            
 
+            /*
             var dic = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(path));
             var answer = new Dictionary<string, string>();
 
@@ -173,13 +181,13 @@ namespace Configurate.Tools
             } 
 
             return answer;
+            */
         }
 
-        public static Dictionary<string, string> ParseCurf(string curfPath, Dictionary<string, string> currentDictionary)
+        public static Dictionary<string, string> ParseCurf(string curfPath, Dictionary<string, string> currentDictionary, ref Dictionary<string, string> curfRealDic)
         {
             var answer = new Dictionary<string, string>();
 
-            return currentDictionary;
             if (!File.Exists(curfPath)) return currentDictionary;
 
             string line = "";
@@ -190,14 +198,17 @@ namespace Configurate.Tools
                 while (line != null)
                 {
                     line = reader.ReadLine();
-                    if (line != null)
+                    if (!string.IsNullOrEmpty(line))
                     {
                         var valuePair = line.Split('=');
                         string rawVarName = valuePair[0];
                         string newVarName = valuePair[1];
 
                         if (currentDictionary.ContainsKey(rawVarName))
+                        {
                             answer.Add(newVarName, currentDictionary[rawVarName]);
+                            curfRealDic.Add(newVarName, rawVarName);
+                        }
                     }
                 }
             }

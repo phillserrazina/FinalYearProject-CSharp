@@ -24,14 +24,13 @@ namespace Configurate.Tools
         // METHODS
         private void SetUpLabels(object sender, RoutedEventArgs eventArgs)
         {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-
             settingsListBox.Items.Clear();
             var grid = settingsListBox.Parent as Grid;
             var groupBox = grid.Parent as GroupBox;
             groupBox.Header = "Select an Application";
 
-            var dic = FileUtils.ParseCurf(myApplication.CurfPath, FileUtils.Parse(myApplication.Path));
+            var curfRealDic = new Dictionary<string, string>();
+            var dic = FileUtils.ParseCurf(myApplication.CurfPath, FileUtils.Parse(myApplication.Path), ref curfRealDic);
             if (dic == null) return;
 
             groupBox.Header = myApplication.Name;
@@ -42,11 +41,12 @@ namespace Configurate.Tools
             foreach (var keyPair in dic)
             {
                 var settingsObj = UIManager.CreateSettingsObject(keyPair);
+
+                settingsObj.SetRealPath(curfRealDic[keyPair.Key]);
+
                 ApplicationsManager.SettingsList.Add(settingsObj);
                 settingsListBox.Items.Add(settingsObj.Grid);
             }
-
-            watch.Stop();
         }
     }
 }
