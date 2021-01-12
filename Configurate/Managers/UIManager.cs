@@ -8,18 +8,23 @@ namespace Configurate.Managers
 {
     class UIManager
     {
+        // METHODS
         public static SettingsTO CreateSettingsObject(KeyValuePair<string, string> keyPair)
         {
+            // Grid Columns
             var cdef1 = new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) };
             var cdef2 = new ColumnDefinition { Width = new GridLength(70, GridUnitType.Star) };
 
+            // Create Grid
             var newGrid = new Grid {
                 Height = 20,
             };
 
+            // Add columns to grid
             newGrid.ColumnDefinitions.Add(cdef1);
             newGrid.ColumnDefinitions.Add(cdef2);
 
+            // Create label
             var newLabel = new Label
             {
                 Name = "Label",
@@ -29,6 +34,7 @@ namespace Configurate.Managers
                 Height = 30,
             };
 
+            // Create input field
             var newTextBox = new TextBox
             {
                 Name = "TextBox",
@@ -39,11 +45,15 @@ namespace Configurate.Managers
                 Height = 20
             };
 
+            newTextBox.TextChanged += TextChangedEventHandler;
+
+            // Add label and input field to grid
             Grid.SetColumn(newLabel, 0);
             Grid.SetColumn(newTextBox, 1);
             newGrid.Children.Add(newLabel);
             newGrid.Children.Add(newTextBox);
 
+            // Create and return a new settings object
             return new SettingsTO(newGrid, newLabel, newTextBox);
         }
 
@@ -91,6 +101,11 @@ namespace Configurate.Managers
             newButton.Click += buttonEvent;
 
             return newButton;
+        }
+
+        private static void TextChangedEventHandler(object sender, TextChangedEventArgs args)
+        {
+            ApplicationsManager.OnDirty?.Invoke(true);
         }
     }
 }

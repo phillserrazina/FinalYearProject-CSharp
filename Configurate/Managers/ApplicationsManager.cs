@@ -12,14 +12,16 @@ namespace Configurate.Managers
         public static ApplicationInfoTO CurrentApplication;
         public static List<SettingsTO> SettingsList;
 
-        // EXECUTION FUNCTIONS
-        public ApplicationsManager(List<ApplicationInfoTO> appList)
-        {
-            ApplicationsList = appList;
-        }
+        public delegate void OnDirtyDelegate(bool val);
+        public static OnDirtyDelegate OnDirty;
 
-        public static void CreateDefault()
+        public static bool IsDirty { get; private set; }
+
+        // CONSTRUCTORS
+        static ApplicationsManager()
         {
+            OnDirty += (bool val) => { IsDirty = val; };
+
             ApplicationsList = new List<ApplicationInfoTO>
             {
                 new ApplicationInfoTO("Skyrim", $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/My Games/Skyrim/Skyrim.ini"),
@@ -28,6 +30,13 @@ namespace Configurate.Managers
                 new ApplicationInfoTO("Sun Rings", ""),
                 new ApplicationInfoTO("Darkest Dungeon", $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/Darkest/persist.options.json")
             };
+        }
+
+        // This is technically not a constructor, but it is an initialization method in case you ever want
+        // to pass the application list manually.
+        // This was made because static constructors do NOT accept parameters.
+        public static void Init(List<ApplicationInfoTO> appList) {
+            ApplicationsList = appList;
         }
 
         // METHODS

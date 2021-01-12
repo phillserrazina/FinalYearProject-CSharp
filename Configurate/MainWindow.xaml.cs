@@ -13,16 +13,19 @@ namespace Configurate
     /// </summary>
     public partial class MainWindow : Window
     {
+        // CONSTRUCTORS
         public MainWindow()
         {
             InitializeComponent();
 
-            ApplicationsManager.CreateDefault();
+            //ApplicationsManager.CreateDefault();
+            ApplicationsManager.OnDirty += OnDirty;
 
             SetUpApplications();
             SetUpButtons();
         }
 
+        // METHODS
         private void SetUpApplications()
         {
             foreach (var app in ApplicationsManager.ApplicationsList)
@@ -34,7 +37,7 @@ namespace Configurate
 
         private void SetUpButtons()
         {
-            SaveButton.Click += new RoutedEventHandler(SaveCurrentFile);
+            SaveButton.Click += new RoutedEventHandler(SaveFileButton);
             ExportButton.Click += new RoutedEventHandler(ExportCurrentFile);
             ImportButton.Click += new RoutedEventHandler(ImportFile);
             OpenLocationButton.Click += new RoutedEventHandler(OpenCurrentFileAtLocation);
@@ -43,21 +46,21 @@ namespace Configurate
         }
 
         #region Button Functions
-        private void SaveCurrentFile(object sender, RoutedEventArgs eventArgs)
+        private void SaveFileButton(object sender, RoutedEventArgs eventArgs)
         {
-            var dic = new Dictionary<string, string>();
-
-            foreach (var setting in ApplicationsManager.SettingsList)
-            {
-                dic.Add(setting.RealPath, setting.Box.Text.ToString());
-            }
-
-            FileUtils.Save(dic, ApplicationsManager.CurrentApplication.Path);
-            MessageBox.Show("File Saved Successfuly", "Success");
+            SaveCurrentFile();
         }
 
         private void HideSettingsGrid(object sender, RoutedEventArgs eventArgs)
         {
+            if (ApplicationsManager.IsDirty)
+            {
+                var saveSettingsResult = MessageBox.Show("Do you wish to save before closing?", "Unsaved Changes", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+
+                if (saveSettingsResult == MessageBoxResult.Yes) SaveCurrentFile();
+                else if (saveSettingsResult == MessageBoxResult.Cancel) return;
+            }
+
             SettingsHoldGrid.Visibility = Visibility.Hidden;
             SettingsGroupBox.Header = "Select an Application";
         }
@@ -92,7 +95,7 @@ namespace Configurate
             }
 
             bool exported = FileUtils.SaveAs(dic, ApplicationsManager.CurrentApplication.Path);
-            if (exported) MessageBox.Show("File Exported Successfuly", "Success");
+            if (exported) MessageBox.Show("File Exported Successfuly.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void ImportFile(object sender, RoutedEventArgs eventArgs)
@@ -108,6 +111,32 @@ namespace Configurate
                 return;
             }
 
+            ReplaceCurrentFile(newPath);
+        }
+
+        private void EditApplicationLocation(object sender, RoutedEventArgs eventArgs)
+        {
+            string fileType = FileUtils.GetFileType(ApplicationsManager.CurrentApplication.Path);
+            string windowTitle = "Select New Location";
+
+            string newPath = FileUtils.GetNewFilePath(fileType, windowTitle);
+
+            if (string.IsNullOrEmpty(newPath)) return;
+
+            var importNewPathSettings = MessageBox.Show("Import new location's parameters?", "New Location", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+            if (importNewPathSettings == MessageBoxResult.Yes) ReplaceCurrentFile(newPath);
+            else if (importNewPathSettings == MessageBoxResult.Cancel) return;
+
+            newPath = newPath.Replace('\\', '/');
+            ApplicationsManager.CurrentApplication.SetPath(newPath);
+
+            MessageBox.Show(ApplicationsManager.CurrentApplication.Name + "'s Path is now: " + ApplicationsManager.CurrentApplication.Path, "Success");
+        }
+        #endregion
+
+        private void ReplaceCurrentFile(string newPath)
+        {
             var realDic = FileUtils.Parse(newPath);
             var curfRealDic = new Dictionary<string, string>();
             var curfDic = FileUtils.ParseCurf(ApplicationsManager.CurrentApplication.CurfPath, realDic, ref curfRealDic);
@@ -134,18 +163,28 @@ namespace Configurate
                 ApplicationsManager.SettingsList.Add(settingsObj);
                 SettingsListBox.Items.Add(settingsObj.Grid);
             }
+
+            ApplicationsManager.OnDirty?.Invoke(false);
         }
 
-        private void EditApplicationLocation(object sender, RoutedEventArgs eventArgs)
+        private void SaveCurrentFile()
         {
-            string fileType = FileUtils.GetFileType(ApplicationsManager.CurrentApplication.Path);
-            string windowTitle = "Select New Location";
+            var dic = new Dictionary<string, string>();
 
-            string newPath = FileUtils.GetNewFilePath(fileType, windowTitle).Replace('\\', '/');
+            foreach (var setting in ApplicationsManager.SettingsList)
+            {
+                dic.Add(setting.RealPath, setting.Box.Text.ToString());
+            }
 
-            ApplicationsManager.CurrentApplication.SetPath(newPath);
-            MessageBox.Show(ApplicationsManager.CurrentApplication.Name + "'s Path is now: " + ApplicationsManager.CurrentApplication.Path, "Success");
+            ApplicationsManager.OnDirty?.Invoke(false);
+
+            FileUtils.Save(dic, ApplicationsManager.CurrentApplication.Path);
+            MessageBox.Show("File Saved Successfuly", "Success");
         }
-        #endregion
+
+        private void OnDirty(bool isDirty)
+        {
+            SettingsGroupBox.Header = ApplicationsManager.CurrentApplication.Name + (isDirty ? "*" : "");
+        }
     }
 }

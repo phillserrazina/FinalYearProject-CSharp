@@ -25,7 +25,7 @@ namespace Configurate.Tools
                 case ".json": return ParseJson(path);
 
                 default:
-                    MessageBox.Show("Unsupported File Type: " + fileType, "Error");
+                    MessageBox.Show("Unsupported File Type: " + fileType, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
                     return null;
             }
         }
@@ -40,7 +40,7 @@ namespace Configurate.Tools
                 case ".json": SaveJson(dic, path); break;
 
                 default:
-                    MessageBox.Show("Unsupported File Type: " + fileType, "Error");
+                    MessageBox.Show("Unsupported File Type: " + fileType, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
             }
         }
@@ -85,7 +85,7 @@ namespace Configurate.Tools
                 return dialog.FileName;
             }
 
-            return "";
+            return null;
         }
 
         public static string GetFileType(string path) => Path.GetExtension(path);
@@ -99,7 +99,7 @@ namespace Configurate.Tools
                 case ".ini": return GetIniText(path);
 
                 default:
-                    MessageBox.Show("Unsupported File Type: " + fileType, "Error");
+                    MessageBox.Show("Unsupported File Type: " + fileType, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
                     return "";
             }
         }

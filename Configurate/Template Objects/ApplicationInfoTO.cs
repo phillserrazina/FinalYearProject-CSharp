@@ -7,11 +7,13 @@ namespace Configurate.TemplateObjects
 {
     class ApplicationInfoTO
     {
+        // VARIABLES
         public readonly string Name;
         public string Path { get; private set; }
         public string CurfPath { get; private set; }
         public ImageSource Icon { get; private set; }
 
+        // CONSTRUCTORS
         public ApplicationInfoTO(string Name, string Path)
         {
             this.Name = Name;
@@ -41,6 +43,7 @@ namespace Configurate.TemplateObjects
             //    File.Copy(iconURI.LocalPath, curfAppDataPath);
         }
 
+        // METHODS
         public void SetPath(string path) => Path = path;
     }
 }
