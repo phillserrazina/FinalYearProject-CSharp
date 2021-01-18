@@ -19,6 +19,7 @@ namespace Configurate
             InitializeComponent();
 
             ApplicationsManager.OnDirty += OnDirty;
+            LoginWindow.OnSuccessfulLogin += OnLogin;
 
             SetUpApplications();
             SetUpButtons();
@@ -37,35 +38,13 @@ namespace Configurate
         private void SetUpButtons()
         {
             SaveButton.Click += new RoutedEventHandler(SaveFileButton);
-            ExportButton.Click += new RoutedEventHandler(ExportCurrentFile);
-            ImportButton.Click += new RoutedEventHandler(ImportFile);
-            OpenLocationButton.Click += new RoutedEventHandler(OpenCurrentFileAtLocation);
-            EditButton.Click += new RoutedEventHandler(EditApplicationLocation);
-            CloseButton.Click += new RoutedEventHandler(HideSettingsGrid);
-            //CloseButton.Click += new RoutedEventHandler(ShareButton);
+            ShareButton.Click += new RoutedEventHandler(ShareFile);
         }
 
         #region Button Functions
         private void SaveFileButton(object sender, RoutedEventArgs eventArgs)
         {
             SaveCurrentFile();
-        }
-
-        private void ShareButton(object sender, RoutedEventArgs eventArgs)
-        {
-            /*
-            var (result, resultMessage) = NetworkManager.LogIn("PhillAdmin", "admin");
-
-            if (result != null)
-            {
-                MessageBox.Show("We got something chief: " + result.Username, "Success!");
-
-            }
-            else
-            {
-                MessageBox.Show(resultMessage, "Oops!");
-            }
-            */
         }
 
         private void HideSettingsGrid(object sender, RoutedEventArgs eventArgs)
@@ -115,8 +94,29 @@ namespace Configurate
             if (exported) MessageBox.Show("File Exported Successfuly.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void ImportFile(object sender, RoutedEventArgs eventArgs)
+        private void ShareFile(object sender, RoutedEventArgs eventArgs)
         {
+            if (!NetworkManager.LoggedIn)
+            {
+                LoginWindow loginWindow = new LoginWindow();
+                loginWindow.Show();
+                IsHitTestVisible = false;
+
+                return;
+            }
+
+            ShareGroupBox.Header = $"Shared { ApplicationsManager.CurrentApplication.Name } Settings";
+
+            ApplicationsGroupBox.Visibility = Visibility.Hidden;
+            ShareGroupBox.Visibility = Visibility.Visible;
+        }
+
+        public void OnLogin()
+        {
+            ShareGroupBox.Header = $"Shared { ApplicationsManager.CurrentApplication.Name } Settings";
+
+            Title = $"Configurate ({ NetworkManager.CurrentUser.Username })";
+
             ApplicationsGroupBox.Visibility = Visibility.Hidden;
             ShareGroupBox.Visibility = Visibility.Visible;
         }

@@ -5,35 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Configurate"
         mc:Ignorable="d"
-        Title="Configurate" Height="450" Width="800">
+        Title="Configurate (Not Logged In)" Height="450" Width="800">
 
     <Window.Resources>
         <Style TargetType="Image">
             <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
         </Style>
     </Window.Resources>
-    
+
     <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.47*"/>
+            <RowDefinition Height="9.53*"/>
+        </Grid.RowDefinitions>
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
-        <GroupBox x:Name="ApplicationsGroupBox" Header="My Applications" Grid.Column="0" Visibility="Visible">
+        <GroupBox x:Name="ApplicationsGroupBox" Header="My Applications" Grid.Column="0" Grid.Row="1" Visibility="Visible">
             <ListBox x:Name="ApplicationsListBox" HorizontalContentAlignment="Stretch"/>
         </GroupBox>
 
-        <GroupBox x:Name="ShareGroupBox" Header="Shared *Application* Settings" Grid.Column="0" Visibility="Hidden">
+        <GroupBox x:Name="ShareGroupBox" Header="Shared *Application* Settings" Grid.Column="0" Grid.Row="1" Visibility="Hidden">
             <ListBox x:Name="ShareListBox" HorizontalContentAlignment="Stretch"/>
         </GroupBox>
 
-        <GroupBox x:Name="SettingsGroupBox" Header="Select an Application" Grid.Column="1">
+        <GroupBox x:Name="SettingsGroupBox" Header="Select an Application" Grid.Column="1" Grid.Row="1">
             <Grid x:Name="SettingsHoldGrid" Visibility="Hidden">
 
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="8.6*"/>
-                    <RowDefinition Height="1.4*"/>
+                    <RowDefinition Height="9.2*"/>
+                    <RowDefinition Height="0.8*"/>
                 </Grid.RowDefinitions>
-                
+
                 <ListBox x:Name="SettingsListBox" HorizontalContentAlignment="Stretch" Grid.Row="0">
 
                     <Grid Height="20">
@@ -49,12 +54,6 @@
 
                 <ListBox x:Name="SettingsButtonBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="1" Background="#FFE2E2E2">
                     <Grid x:Name="SettingsButtonGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="5*"/>
-                            <RowDefinition Height="5*"/>
-                        </Grid.RowDefinitions>
-
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3*"/>
                             <ColumnDefinition Width="3*"/>
@@ -62,17 +61,26 @@
                         </Grid.ColumnDefinitions>
 
                         <Button x:Name="SaveButton" Content="Save" Grid.Column="0" Grid.Row="0" Margin="2"/>
-                        <Button x:Name="ExportButton" Content="Export" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                        <Button x:Name="ImportButton" Content="Import" Grid.Column="2" Grid.Row="0" Margin="2"/>
-
-                        <Button x:Name="OpenLocationButton" Content="Open Location" Grid.Column="0" Grid.Row="1" Margin="2"/>
-                        <Button x:Name="EditButton" Content="Edit Location" Grid.Column="1" Grid.Row="1" Margin="2"/>
-                        <Button x:Name="CloseButton" Content="Close" Grid.Column="2" Grid.Row="1" Margin="2"/>
+                        <Button x:Name="ShareButton" Content="Share" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                        <Button x:Name="AutoFillButton" Content="Auto Fill" Grid.Column="2" Grid.Row="0" Margin="2"/>
 
                     </Grid>
                 </ListBox>
             </Grid>
 
         </GroupBox>
+
+        <DockPanel Width="Auto" HorizontalAlignment="Stretch" Grid.Row="0" Visibility="Collapsed">
+            <Menu DockPanel.Dock="Top" Width="Auto" HorizontalAlignment="Stretch">
+                <MenuItem Header="Application">
+                    <MenuItem Header="Open Location" Click="OpenCurrentFileAtLocation"/>
+                    <MenuItem Header="Edit Location" Click="EditApplicationLocation"/>
+                    <MenuItem Header="Export File" Click="ExportCurrentFile"/>
+                    <MenuItem Header="Close" Click="HideSettingsGrid"/>
+                </MenuItem>
+            </Menu>
+            <StackPanel></StackPanel>
+        </DockPanel>
+        
     </Grid>
 </Window>
