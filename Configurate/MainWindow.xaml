@@ -18,9 +18,14 @@
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
-        <GroupBox x:Name="ApplicationsGroupBox" Header="My Applications" Grid.Column="0">
+        <GroupBox x:Name="ApplicationsGroupBox" Header="My Applications" Grid.Column="0" Visibility="Visible">
             <ListBox x:Name="ApplicationsListBox" HorizontalContentAlignment="Stretch"/>
         </GroupBox>
+
+        <GroupBox x:Name="ShareGroupBox" Header="Shared *Application* Settings" Grid.Column="0" Visibility="Hidden">
+            <ListBox x:Name="ShareListBox" HorizontalContentAlignment="Stretch"/>
+        </GroupBox>
+
         <GroupBox x:Name="SettingsGroupBox" Header="Select an Application" Grid.Column="1">
             <Grid x:Name="SettingsHoldGrid" Visibility="Hidden">
 

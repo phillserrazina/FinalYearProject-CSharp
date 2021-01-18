@@ -18,7 +18,6 @@ namespace Configurate
         {
             InitializeComponent();
 
-            //ApplicationsManager.CreateDefault();
             ApplicationsManager.OnDirty += OnDirty;
 
             SetUpApplications();
@@ -43,12 +42,30 @@ namespace Configurate
             OpenLocationButton.Click += new RoutedEventHandler(OpenCurrentFileAtLocation);
             EditButton.Click += new RoutedEventHandler(EditApplicationLocation);
             CloseButton.Click += new RoutedEventHandler(HideSettingsGrid);
+            //CloseButton.Click += new RoutedEventHandler(ShareButton);
         }
 
         #region Button Functions
         private void SaveFileButton(object sender, RoutedEventArgs eventArgs)
         {
             SaveCurrentFile();
+        }
+
+        private void ShareButton(object sender, RoutedEventArgs eventArgs)
+        {
+            /*
+            var (result, resultMessage) = NetworkManager.LogIn("PhillAdmin", "admin");
+
+            if (result != null)
+            {
+                MessageBox.Show("We got something chief: " + result.Username, "Success!");
+
+            }
+            else
+            {
+                MessageBox.Show(resultMessage, "Oops!");
+            }
+            */
         }
 
         private void HideSettingsGrid(object sender, RoutedEventArgs eventArgs)
@@ -100,18 +117,8 @@ namespace Configurate
 
         private void ImportFile(object sender, RoutedEventArgs eventArgs)
         {
-            string fileType = FileUtils.GetFileType(ApplicationsManager.CurrentApplication.Path);
-            string windowTitle = "Import File";
-
-            string newPath = FileUtils.GetNewFilePath(fileType, windowTitle).Replace('\\', '/');
-
-            if (string.IsNullOrEmpty(newPath))
-            {
-                MessageBox.Show("Couldn't Import File. Please try again.", "Oops!");
-                return;
-            }
-
-            ReplaceCurrentFile(newPath);
+            ApplicationsGroupBox.Visibility = Visibility.Hidden;
+            ShareGroupBox.Visibility = Visibility.Visible;
         }
 
         private void EditApplicationLocation(object sender, RoutedEventArgs eventArgs)
@@ -185,6 +192,22 @@ namespace Configurate
         private void OnDirty(bool isDirty)
         {
             SettingsGroupBox.Header = ApplicationsManager.CurrentApplication.Name + (isDirty ? "*" : "");
+        }
+
+        private void ImportFileManually()
+        {
+            string fileType = FileUtils.GetFileType(ApplicationsManager.CurrentApplication.Path);
+            string windowTitle = "Import File";
+
+            string newPath = FileUtils.GetNewFilePath(fileType, windowTitle).Replace('\\', '/');
+
+            if (string.IsNullOrEmpty(newPath))
+            {
+                MessageBox.Show("Couldn't Import File. Please try again.", "Oops!");
+                return;
+            }
+
+            ReplaceCurrentFile(newPath);
         }
     }
 }
