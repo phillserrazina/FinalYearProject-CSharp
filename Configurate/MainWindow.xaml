@@ -13,64 +13,8 @@
         </Style>
     </Window.Resources>
 
-    <Grid x:Name="MainGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="0.47*"/>
-            <RowDefinition Height="9.53*"/>
-        </Grid.RowDefinitions>
-        
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="4*"/>
-            <ColumnDefinition Width="6*"/>
-        </Grid.ColumnDefinitions>
-        <GroupBox x:Name="ApplicationsGroupBox" Header="My Applications" Grid.Column="0" Grid.Row="1" Visibility="Visible">
-            <ListBox x:Name="ApplicationsListBox" HorizontalContentAlignment="Stretch"/>
-        </GroupBox>
-
-        <GroupBox x:Name="ShareGroupBox" Header="Shared *Application* Settings" Grid.Column="0" Grid.Row="1" Visibility="Hidden">
-            <ListBox x:Name="ShareListBox" HorizontalContentAlignment="Stretch"/>
-        </GroupBox>
-
-        <GroupBox x:Name="SettingsGroupBox" Header="Select an Application" Grid.Column="1" Grid.Row="1">
-            <Grid x:Name="SettingsHoldGrid" Visibility="Hidden">
-
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="9.2*"/>
-                    <RowDefinition Height="0.8*"/>
-                </Grid.RowDefinitions>
-
-                <ListBox x:Name="SettingsListBox" HorizontalContentAlignment="Stretch" Grid.Row="0">
-
-                    <Grid Height="20">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="7*"/>
-                        </Grid.ColumnDefinitions>
-
-                    </Grid>
-
-                </ListBox>
-
-                <ListBox x:Name="SettingsButtonBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="1" Background="#FFE2E2E2">
-                    <Grid x:Name="SettingsButtonGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="3*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button x:Name="SaveButton" Content="Save" Grid.Column="0" Grid.Row="0" Margin="2"/>
-                        <Button x:Name="ShareButton" Content="Share" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                        <Button x:Name="AutoFillButton" Content="Auto Fill" Grid.Column="2" Grid.Row="0" Margin="2"/>
-
-                    </Grid>
-                </ListBox>
-            </Grid>
-
-        </GroupBox>
-
-        <DockPanel Width="Auto" HorizontalAlignment="Stretch" Grid.Row="0" Visibility="Collapsed">
+    <DockPanel VerticalAlignment="Stretch" Height="Auto">
+        <DockPanel DockPanel.Dock="Top" Width="Auto" HorizontalAlignment="Stretch" Grid.Row="0" Visibility="Visible">
             <Menu DockPanel.Dock="Top" Width="Auto" HorizontalAlignment="Stretch">
                 <MenuItem Header="Application">
                     <MenuItem Header="Open Location" Click="OpenCurrentFileAtLocation"/>
@@ -81,6 +25,58 @@
             </Menu>
             <StackPanel></StackPanel>
         </DockPanel>
-        
-    </Grid>
+
+        <Grid DockPanel.Dock="Top" x:Name="MainGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="6*"/>
+            </Grid.ColumnDefinitions>
+            <GroupBox x:Name="ApplicationsGroupBox" Header="My Applications" Grid.Column="0" Visibility="Visible">
+                <ListBox x:Name="ApplicationsListBox" HorizontalContentAlignment="Stretch"/>
+            </GroupBox>
+
+            <GroupBox x:Name="ShareGroupBox" Header="Shared *Application* Settings" Grid.Column="0" Visibility="Hidden">
+                <ListBox x:Name="ShareListBox" HorizontalContentAlignment="Stretch"/>
+            </GroupBox>
+
+            <GroupBox x:Name="SettingsGroupBox" Header="Select an Application" Grid.Column="1">
+                <Grid x:Name="SettingsHoldGrid" Visibility="Hidden">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="9.2*"/>
+                        <RowDefinition Height="0.8*"/>
+                    </Grid.RowDefinitions>
+
+                    <ListBox x:Name="SettingsListBox" HorizontalContentAlignment="Stretch" Grid.Row="0">
+
+                        <Grid Height="20">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="7*"/>
+                            </Grid.ColumnDefinitions>
+
+                        </Grid>
+
+                    </ListBox>
+
+                    <ListBox x:Name="SettingsButtonBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="1" Background="#FFE2E2E2">
+                        <Grid x:Name="SettingsButtonGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button x:Name="SaveButton" Content="Save" Grid.Column="0" Grid.Row="0" Margin="2"/>
+                            <Button x:Name="ShareButton" Content="Share" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                            <Button x:Name="AutoFillButton" Content="Auto Fill" Grid.Column="2" Grid.Row="0" Margin="2"/>
+
+                        </Grid>
+                    </ListBox>
+                </Grid>
+
+            </GroupBox>
+        </Grid>
+    </DockPanel>
 </Window>
