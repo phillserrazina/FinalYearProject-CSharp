@@ -17,5 +17,6 @@ namespace Configurate.TemplateObjects
         }
 
         public void SetRealPath(string s) => RealPath = s;
+        public void SetVisibility(bool val) => Grid.Visibility = val ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
     }
 }

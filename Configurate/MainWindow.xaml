@@ -14,15 +14,42 @@
     </Window.Resources>
 
     <DockPanel VerticalAlignment="Stretch" Height="Auto">
-        <DockPanel DockPanel.Dock="Top" Width="Auto" HorizontalAlignment="Stretch" Grid.Row="0" Visibility="Visible">
+        
+        <DockPanel x:Name="TopBar" DockPanel.Dock="Top" Width="Auto" HorizontalAlignment="Stretch" Grid.Row="0" Visibility="Collapsed">
             <Menu DockPanel.Dock="Top" Width="Auto" HorizontalAlignment="Stretch">
-                <MenuItem Header="Application">
+                <MenuItem Header="Application" Width="Auto">
                     <MenuItem Header="Open Location" Click="OpenCurrentFileAtLocation"/>
                     <MenuItem Header="Edit Location" Click="EditApplicationLocation"/>
                     <MenuItem Header="Export File" Click="ExportCurrentFile"/>
                     <MenuItem Header="Close" Click="HideSettingsGrid"/>
                 </MenuItem>
+                <Rectangle VerticalAlignment="Stretch" Width="1" Height="18" Stroke="Gray" />
+
+                <Grid>
+                    <TextBox TextChanged="OnTextChange" Width="250"  VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="SearchBox" Height="20" Margin="5" Text="{Binding SearchCriteria, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Return" 
+                                        Command="{Binding SearchParameter}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+
+                    <TextBlock IsHitTestVisible="False" Text="Search Parameter..." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Foreground="DarkGray">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                </Grid>
+
             </Menu>
+
             <StackPanel></StackPanel>
         </DockPanel>
 
@@ -48,15 +75,17 @@
                     </Grid.RowDefinitions>
 
                     <ListBox x:Name="SettingsListBox" HorizontalContentAlignment="Stretch" Grid.Row="0">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Visible}" Value="Collapsed">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
 
-                        <Grid Height="20">
 
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*"/>
-                                <ColumnDefinition Width="7*"/>
-                            </Grid.ColumnDefinitions>
-
-                        </Grid>
 
                     </ListBox>
 

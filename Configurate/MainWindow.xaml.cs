@@ -31,7 +31,7 @@ namespace Configurate
             foreach (var app in ApplicationsManager.ApplicationsList)
             {
                 if (File.Exists(app.Path))
-                    ApplicationsListBox.Items.Add(new CustomButton(app, ref SettingsListBox).Button);
+                    ApplicationsListBox.Items.Add(new CustomButton(app, ref SettingsListBox, ref TopBar).Button);
             }
         }
 
@@ -56,6 +56,8 @@ namespace Configurate
                 if (saveSettingsResult == MessageBoxResult.Yes) SaveCurrentFile();
                 else if (saveSettingsResult == MessageBoxResult.Cancel) return;
             }
+
+            TopBar.Visibility = Visibility.Collapsed;
 
             SettingsHoldGrid.Visibility = Visibility.Hidden;
             SettingsGroupBox.Header = "Select an Application";
@@ -208,6 +210,15 @@ namespace Configurate
             }
 
             ReplaceCurrentFile(newPath);
+        }
+
+        private void OnTextChange(object sender, RoutedEventArgs e)
+        {
+            string searchParameter = SearchBox.Text;
+            foreach(var setting in ApplicationsManager.SettingsList)
+            {
+                setting.SetVisibility(setting.Label.Content.ToString().Contains(searchParameter));
+            }
         }
     }
 }

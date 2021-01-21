@@ -12,12 +12,14 @@ namespace Configurate.Tools
         public readonly Button Button;
         private readonly ApplicationInfoTO myApplication;
         private readonly ListBox settingsListBox;
+        private readonly DockPanel topBar;
 
         // EXECUTION FUNCTIONS
-        public CustomButton(ApplicationInfoTO app, ref ListBox listBox)
+        public CustomButton(ApplicationInfoTO app, ref ListBox listBox, ref DockPanel topBar)
         {
             myApplication = app;
             settingsListBox = listBox;
+            this.topBar = topBar;
             Button = UIManager.CreateApplicationButton(myApplication.Name, myApplication.Icon, new RoutedEventHandler(SetUpLabels));
         }
 
@@ -32,6 +34,8 @@ namespace Configurate.Tools
             var curfRealDic = new Dictionary<string, string>();
             var dic = FileUtils.ParseCurf(myApplication.CurfPath, FileUtils.Parse(myApplication.Path), ref curfRealDic);
             if (dic == null) return;
+
+            topBar.Visibility = Visibility.Visible;
 
             groupBox.Header = myApplication.Name;
             grid.Visibility = Visibility.Visible;
