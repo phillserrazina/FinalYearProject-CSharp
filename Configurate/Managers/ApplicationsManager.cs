@@ -21,22 +21,23 @@ namespace Configurate.Managers
         static ApplicationsManager()
         {
             OnDirty += (bool val) => { IsDirty = val; };
-
-            ApplicationsList = new List<ApplicationInfoTO>
-            {
-                new ApplicationInfoTO("Skyrim", $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/My Games/Skyrim/Skyrim.ini"),
-                new ApplicationInfoTO("Skyrim Special Edition", $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/My Games/Skyrim Special Edition/Skyrim.ini"),
-                new ApplicationInfoTO("Witcher 3", "D:/QT Projects/ConfigurateProject/TestSaveFiles/witcherConfigTest.txt"),
-                new ApplicationInfoTO("Sun Rings", ""),
-                new ApplicationInfoTO("Darkest Dungeon", $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/Darkest/persist.options.json")
-            };
         }
 
         // This is technically not a constructor, but it is an initialization method in case you ever want
         // to pass the application list manually.
         // This was made because static constructors do NOT accept parameters.
-        public static void Init(List<ApplicationInfoTO> appList) {
+        public static void Initialize(List<ApplicationInfoTO> appList) {
             ApplicationsList = appList;
+        }
+
+        public static void Initialize(Dictionary<string, string> appDic)
+        {
+            ApplicationsList = new List<ApplicationInfoTO>();
+
+            foreach (var key in appDic.Keys)
+            {
+                ApplicationsList.Add(new ApplicationInfoTO(key, appDic[key]));    
+            }
         }
 
         // METHODS

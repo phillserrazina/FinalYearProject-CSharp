@@ -5,6 +5,9 @@ using Configurate.Tools;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Controls;
+using System;
+using System.Reflection;
+using System.Linq;
 
 namespace Configurate
 {
@@ -18,6 +21,12 @@ namespace Configurate
         {
             InitializeComponent();
 
+            SetupManager setup = new SetupManager();
+
+            ToolTipService.ShowDurationProperty.OverrideMetadata(
+                typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
+
+            ApplicationsManager.Initialize(setup.ApplicationInfo);
             ApplicationsManager.OnDirty += OnDirty;
             LoginWindow.OnSuccessfulLogin += OnLogin;
 
@@ -31,7 +40,7 @@ namespace Configurate
             foreach (var app in ApplicationsManager.ApplicationsList)
             {
                 if (File.Exists(app.Path))
-                    ApplicationsListBox.Items.Add(new CustomButton(app, ref SettingsListBox, ref TopBar).Button);
+                    ApplicationsStackPanel.Children.Add(new CustomButton(app, ref SettingsStackPanel, ref TopBar).Button);
             }
         }
 
@@ -155,8 +164,8 @@ namespace Configurate
                 return;
             }
 
-            SettingsListBox.Items.Clear();
-            var grid = SettingsListBox.Parent as Grid;
+            SettingsStackPanel.Children.Clear();
+            var grid = SettingsStackPanel.Parent as Grid;
             var groupBox = grid.Parent as GroupBox;
 
             groupBox.Header = ApplicationsManager.CurrentApplication.Name;
@@ -165,12 +174,12 @@ namespace Configurate
 
             foreach (var keyPair in curfDic)
             {
-                var settingsObj = UIManager.CreateSettingsObject(keyPair);
+                var settingsObj = UIManager.CreateSettingsObject(keyPair.Key, keyPair.Value);
 
                 settingsObj.SetRealPath(curfRealDic[keyPair.Key]);
 
                 ApplicationsManager.SettingsList.Add(settingsObj);
-                SettingsListBox.Items.Add(settingsObj.Grid);
+                SettingsStackPanel.Children.Add(settingsObj.Grid);
             }
 
             ApplicationsManager.OnDirty?.Invoke(false);

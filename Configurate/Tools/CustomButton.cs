@@ -11,23 +11,25 @@ namespace Configurate.Tools
         // VARIABLES
         public readonly Button Button;
         private readonly ApplicationInfoTO myApplication;
-        private readonly ListBox settingsListBox;
+        private readonly StackPanel settingsStackPanel;
         private readonly DockPanel topBar;
 
         // EXECUTION FUNCTIONS
-        public CustomButton(ApplicationInfoTO app, ref ListBox listBox, ref DockPanel topBar)
+        public CustomButton(ApplicationInfoTO app, ref StackPanel stackPanel, ref DockPanel topBar)
         {
             myApplication = app;
-            settingsListBox = listBox;
+            settingsStackPanel = stackPanel;
             this.topBar = topBar;
-            Button = UIManager.CreateApplicationButton(myApplication.Name, myApplication.Icon, new RoutedEventHandler(SetUpLabels));
+            Button = UIManager.CreateApplicationButton(myApplication.Name, myApplication.Icon, new RoutedEventHandler(SetUpSettingsObjects));
         }
 
         // METHODS
-        private void SetUpLabels(object sender, RoutedEventArgs eventArgs)
+        private void SetUpSettingsObjects(object sender, RoutedEventArgs eventArgs)
         {
-            settingsListBox.Items.Clear();
-            var grid = settingsListBox.Parent as Grid;
+            settingsStackPanel.Children.Clear();
+            var scrollView = settingsStackPanel.Parent as ScrollViewer;
+            var grid = scrollView.Parent as Grid;
+            grid.Visibility = Visibility.Hidden;
             var groupBox = grid.Parent as GroupBox;
             groupBox.Header = "Select an Application";
 
@@ -44,12 +46,12 @@ namespace Configurate.Tools
 
             foreach (var keyPair in dic)
             {
-                var settingsObj = UIManager.CreateSettingsObject(keyPair);
+                var settingsObj = UIManager.CreateSettingsObject(keyPair.Key, keyPair.Value);
 
                 settingsObj.SetRealPath(curfRealDic[keyPair.Key]);
 
                 ApplicationsManager.SettingsList.Add(settingsObj);
-                settingsListBox.Items.Add(settingsObj.Grid);
+                settingsStackPanel.Children.Add(settingsObj.Grid);
             }
         }
     }

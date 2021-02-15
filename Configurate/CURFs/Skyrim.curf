@@ -1,0 +1,51 @@
+sLanguage=Language
+sTestFile1=Dawnguard File
+sTestFile2=Hearthfire File
+sTestFile3=Dragonborn File
+uExterior%20Cell%20Buffer=Exterior Cell Buffer
+
+fShadowLODMaxStartFade=Shadow LOD Max Start Fade
+fSpecularLODMaxStartFade=Specular LOD Max Start Fade
+fLightLODMaxStartFade=Light LOD Max Start Fade
+fLightLODStartFade=Light LOD Start Fade
+iShadowMapResolutionPrimary=Primary Shadow Map Resolution
+bAllowScreenshot=Allow Screenshots
+fTreesMidLODSwitchDist=Trees Mid LOD Switch Distance
+fFirstSliceDistance=First Slice Distance
+fDynamicDOFFarBlur=Dynamic DOF Far Blur
+fDDOFFocusCenterweightExt=Dynamic DOF Focus Centerweight Ext
+fDOFMaxDepthParticipation=DOF Max Depth Participation
+
+fMusicDuckingSeconds=Music Ducking Seconds
+fMusicUnDuckingSeconds=Music UnDucking Seconds
+fMenuModeFadeOutTime=Menu Mode FadeOut Time
+fMenuModeFadeInTime=Menu Mode FadeIn Time
+
+bAllowCreateGrass=Allow Create Grass
+bAllowLoadGrass=Allow Load Grass
+fGrassMaxStartFadeDistance=Grass Max Start Fade Distance
+fGrassMinStartFadeDistance=Grass Min Start Fade Distance
+
+uMaxSkinDecalPerActor=Max Skin Decal Per Actor
+
+fDecalLODFadeStart=Decal LOD Fade Start
+fDecalLODFadeEnd=Decal LOD Fade End
+
+iRadialBlurLevel=Radial Blur Level
+
+SGeneralMasterMismatchWarning=General Master Mismatch Warning
+
+sResourceArchiveList=Resource Archive List
+sResourceArchiveList2=Resource Archive List 2
+bLoadArchiveInMemory=Load Archive In Memory
+sArchiveToLoadInMemoryList=Archive To Load In Memory List
+
+fMagnetismStrafeHeadingMult=Magnetism Strafe Heading Mult
+fMagnetismLookingMult=Magnetism Looking Mult
+
+bUseNavMeshForMovement=Use NavMesh For Movement
+
+fPostLoadUpdateTimeMS=Post Load Update Time MS
+bEnableLogging=Enable Logging
+bEnableTrace=Enable Trace
+bLoadDebugInformation=Load Debug Information

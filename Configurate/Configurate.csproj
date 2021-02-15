@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CURF Files\**" />
+    <EmbeddedResource Remove="CURF Files\**" />
+    <None Remove="CURF Files\**" />
+    <Page Remove="CURF Files\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Skyrim Special Edition_Logo.png" />
     <None Remove="Skyrim_Logo.png" />
     <None Remove="Witcher 3_Logo.png" />
@@ -36,12 +43,7 @@
     <Resource Include="Images\Witcher 3_Logo.png" />
     <Resource Include="Images\Darkest Dungeon_Logo.png" />
     <Resource Include="Images\Sun Rings_Logo.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="CURF Files\" />
-    <Resource Include="CURF Files\Skyrim.curf" />
-    <Resource Include="CURF Files\Sun Rings.curf" />
+    <Resource Include="Applications.txt" />
   </ItemGroup>
 
 </Project>

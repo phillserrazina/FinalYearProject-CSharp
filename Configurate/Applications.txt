@@ -1,0 +1,6 @@
+Skyrim=$DOCUMENTS$/My Games/Skyrim/Skyrim.ini
+Skyrim Special Edition=$DOCUMENTS$/My Games/Skyrim Special Edition/Skyrim.ini
+Witcher 3=D:/QT Projects/ConfigurateProject/TestSaveFiles/witcherConfigTest.txt
+Sun Rings=$LOW$/Lucerna/SunRings/Settings/Audio.json
+Darkest Dungeon=$DOCUMENTS$/Darkest/persist.options.json
+The Stick of Truth=$DOCUMENTS$/My Games/South Park - The Stick Of Truth/user.ini

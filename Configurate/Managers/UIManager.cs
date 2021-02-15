@@ -9,7 +9,7 @@ namespace Configurate.Managers
     class UIManager
     {
         // METHODS
-        public static SettingsTO CreateSettingsObject(KeyValuePair<string, string> keyPair)
+        public static SettingsTO CreateSettingsObject(string settingName, Dictionary<string, string> settingValues)
         {
             // Grid Columns
             var cdef1 = new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) };
@@ -18,6 +18,7 @@ namespace Configurate.Managers
             // Create Grid
             var newGrid = new Grid {
                 Height = 20,
+                Margin = new Thickness(0, 2, 5, 2)
             };
 
             // Add columns to grid
@@ -28,17 +29,31 @@ namespace Configurate.Managers
             var newLabel = new Label
             {
                 Name = "Label",
-                Content = keyPair.Key,
+                Content = settingName,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Center,
-                Height = 30,
+                Height = 30
             };
+
+            // Create tooltip
+            var tooltipStackPanel = new StackPanel();
+            var tooltipTitle = new Label { Content = newLabel.Content, FontWeight = FontWeights.Bold };
+
+            string description = settingValues.ContainsKey("Description") ? settingValues["Description"] : "No Description Available.";
+
+            var tooltipDescription = new Label { Content = description };
+
+            tooltipStackPanel.Children.Add(tooltipTitle);
+            tooltipStackPanel.Children.Add(tooltipDescription);
+
+            var labelTooltip = new ToolTip { Content = tooltipStackPanel };
+            newLabel.ToolTip = labelTooltip;
 
             // Create input field
             var newTextBox = new TextBox
             {
                 Name = "TextBox",
-                Text = keyPair.Value,
+                Text = settingValues["Value"],
                 TextWrapping = TextWrapping.Wrap,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -95,7 +110,8 @@ namespace Configurate.Managers
             {
                 Height = 30,
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                Content = newGrid
+                Content = newGrid,
+                Margin = new Thickness(2)
             };
 
             newButton.Click += buttonEvent;

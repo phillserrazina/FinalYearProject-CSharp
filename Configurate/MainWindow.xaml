@@ -23,9 +23,9 @@
                     <MenuItem Header="Export File" Click="ExportCurrentFile"/>
                     <MenuItem Header="Close" Click="HideSettingsGrid"/>
                 </MenuItem>
-                <Rectangle VerticalAlignment="Stretch" Width="1" Height="18" Stroke="Gray" />
+                <Rectangle VerticalAlignment="Stretch" Width="1" Height="18" Stroke="Gray" Focusable="false"/>
 
-                <Grid>
+                <Grid Focusable="false">
                     <TextBox TextChanged="OnTextChange" Width="250"  VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="SearchBox" Height="20" Margin="5" Text="{Binding SearchCriteria, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
                         <TextBox.InputBindings>
                             <KeyBinding Key="Return" 
@@ -59,11 +59,15 @@
                 <ColumnDefinition Width="6*"/>
             </Grid.ColumnDefinitions>
             <GroupBox x:Name="ApplicationsGroupBox" Header="My Applications" Grid.Column="0" Visibility="Visible">
-                <ListBox x:Name="ApplicationsListBox" HorizontalContentAlignment="Stretch"/>
+                <ScrollViewer>
+                    <StackPanel x:Name="ApplicationsStackPanel"/>
+                </ScrollViewer>
             </GroupBox>
 
             <GroupBox x:Name="ShareGroupBox" Header="Shared *Application* Settings" Grid.Column="0" Visibility="Hidden">
-                <ListBox x:Name="ShareListBox" HorizontalContentAlignment="Stretch"/>
+                <ScrollViewer>
+                    <StackPanel x:Name="ShareStackPanel"/>
+                </ScrollViewer>
             </GroupBox>
 
             <GroupBox x:Name="SettingsGroupBox" Header="Select an Application" Grid.Column="1">
@@ -74,21 +78,12 @@
                         <RowDefinition Height="0.8*"/>
                     </Grid.RowDefinitions>
 
-                    <ListBox x:Name="SettingsListBox" HorizontalContentAlignment="Stretch" Grid.Row="0">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListBoxItem}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Visible}" Value="Collapsed">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-
-
-
-                    </ListBox>
-
+                    <ScrollViewer>
+                        <StackPanel x:Name="SettingsStackPanel" Grid.Row="0">
+                        
+                        </StackPanel>
+                    </ScrollViewer>
+                    
                     <ListBox x:Name="SettingsButtonBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="1" Background="#FFE2E2E2">
                         <Grid x:Name="SettingsButtonGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid.ColumnDefinitions>

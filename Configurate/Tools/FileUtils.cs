@@ -2,6 +2,7 @@
 using IniParser.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 using System;
 using System.IO;
@@ -9,6 +10,9 @@ using System.Windows;
 using System.Collections.Generic;
 
 using Microsoft.Win32;
+
+using System.Linq;
+using System.Reflection;
 
 namespace Configurate.Tools
 {
@@ -131,6 +135,7 @@ namespace Configurate.Tools
             var answer = new Dictionary<string, string>();
 
             var contents = File.ReadAllText(path);
+
             using (var reader = new JsonTextReader(new StringReader(contents)))
             {
                 while (reader.Read())
@@ -159,36 +164,25 @@ namespace Configurate.Tools
             }
 
             return answer;
-            
-
-            /*
-            var dic = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(path));
-            var answer = new Dictionary<string, string>();
-
-            foreach (var property in dic.Properties())
-            {
-                if (property.HasValues)
-                {
-                    foreach (var child in property.Children())
-                    {
-                        var obj = child.ToObject<JValue>();
-                        
-                        //foreach (var p in obj.Properties()) answer.Add(p.Name, p.Value.ToString());
-                    }
-                }
-                else
-                    answer.Add(property.Name, property.Value.ToString());
-            } 
-
-            return answer;
-            */
         }
 
-        public static Dictionary<string, string> ParseCurf(string curfPath, Dictionary<string, string> currentDictionary, ref Dictionary<string, string> curfRealDic)
+        public static Dictionary<string, Dictionary<string, string>> ParseCurf(string curfPath, Dictionary<string, string> currentDictionary, ref Dictionary<string, string> curfRealDic)
         {
-            var answer = new Dictionary<string, string>();
+            var answer = new Dictionary<string, Dictionary<string, string>>();
 
-            if (!File.Exists(curfPath)) return currentDictionary;
+            if (!File.Exists(curfPath))
+            {
+                if (currentDictionary == null) return null;
+                if (currentDictionary.Count == 0) return null;
+
+                foreach (var key in currentDictionary.Keys)
+                {
+                    answer.Add(key, new Dictionary<string, string>() { { "Value", currentDictionary[key] } });
+                    curfRealDic.Add(key, key);
+                }
+
+                return answer;
+            }
 
             string line = "";
 
@@ -202,11 +196,27 @@ namespace Configurate.Tools
                     {
                         var valuePair = line.Split('=');
                         string rawVarName = valuePair[0];
-                        string newVarName = valuePair[1];
+                        string properties = valuePair[1];
+
+                        string[] propertyList = properties.Split('[');
+                        string newVarName = propertyList[0];
+
+                        string description = "No Description Available";
+
+                        if (propertyList.Length > 1)
+                        {
+                            description = propertyList[1].Substring(0, propertyList[1].Length - 1);
+                        }
 
                         if (currentDictionary.ContainsKey(rawVarName))
                         {
-                            answer.Add(newVarName, currentDictionary[rawVarName]);
+                            var propertiesDic = new Dictionary<string, string>()
+                            {
+                                { "Value", currentDictionary[rawVarName] },
+                                { "Description", description }
+                            };
+
+                            answer.Add(newVarName, propertiesDic);
                             curfRealDic.Add(newVarName, rawVarName);
                         }
                     }
@@ -255,8 +265,142 @@ namespace Configurate.Tools
         private static void SaveJson(Dictionary<string, string> dic, string path)
         {
             var contents = File.ReadAllText(path);
+            var data = new DDTestFormat(dic);
+            var result = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+            //JObject obj = JObject.Parse(contents);
+
+            /*
+            foreach (var prop in obj.Properties().ToList())
+            {
+                JsonSaveHelper(prop, new List<string>(), ref obj, dic);
+            }
+            */
+
+            //string result = obj.ToString();
+
+            if (!File.Exists(path))
+            {
+                MessageBox.Show("Oops!", "File path is corrupted", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            File.WriteAllText(path, result);
         }
 
+        // ============================
+        // item["test"]["nth"] = "updated";
+        // ============================
+
+        /*
+        private static void JsonSaveHelper(JProperty prop, List<string> additionalPath, ref JObject obj, Dictionary<string, string> dic)
+        {
+            if (prop.Value.Type == JTokenType.Object)
+            {
+                var newObj = prop.Value.ToObject<JObject>();
+                additionalPath.Add(prop.Name);
+
+                foreach (var newProp in newObj.Properties().ToList())
+                {
+                    JsonSaveHelper(newProp, additionalPath, ref newObj, dic);
+                }
+            }
+
+            else if (prop.Value.Type == JTokenType.Array)
+            {
+                if (obj.ContainsKey(prop.Name) && dic.ContainsKey(prop.Name))
+                {
+                    JArray newArr = new JArray();
+
+                    var split = dic[prop.Name].Split(',');
+
+                    for (int i = 0; i < split.Length; i++)
+                    {
+                        split[i] = split[i].Trim();
+                        newArr.Add(split[i]);
+                    }
+
+                    obj[prop.Name] = new JArray(newArr);
+                    //MessageBox.Show(prop.Name + ": " + obj[prop.Name]);
+                }
+                else MessageBox.Show("Object doesn't contain " + prop.Name + $".\nProp: {prop.Name} (Parent: {prop.Parent.Path})");
+            }
+
+            else
+            {
+
+                if (obj.ContainsKey(prop.Name) && dic.ContainsKey(prop.Name))
+                {
+                    obj[prop.Name] = dic[prop.Name];
+                    //MessageBox.Show(prop.Name + ": " + obj[prop.Name]);
+                }
+                else MessageBox.Show("Object doesn't contain " + prop.Name + $".\nProp: {prop.Name} (Root: {prop.Root.Path})");
+
+            }
+        }
+        */
         #endregion
+    }
+
+    public class DDTestFormat
+    {
+        public class Values
+        {
+            public int[] controller_enabled;
+            public int[] hold_required_in_dungeon;
+            public int[] left_stick_interact;
+            public int[] controller_vibration;
+            public int[] fullscreen;
+            public int[] monitor_number;
+            public int[] resolution;
+            public int[] gamma;
+            public int[] combat_pivot_camera;
+            public int[] blur;
+            public string subtitles;
+            public int[] mute_when_window_not_focussed;
+            public int[] master_volume;
+            public int[] sfx_volume;
+            public int[] music_volume;
+            public int[] narration_volume;
+            public int[] video_volume;
+            public int[] tutorial;
+            public int[] metrics;
+            public int[] extra_bark_time;
+            public int[] bark_dismissal;
+            public int[] roster_sort_party_to_top;
+            public int[] debug_output;
+            public string language;
+            public int[] map_follow_party;
+            public int[] framerate;
+
+            public Values(Dictionary<string, string> dic)
+            {
+                FieldInfo[] fields = typeof(Values).GetFields(BindingFlags.Public | BindingFlags.Instance);
+
+                foreach (var field in fields)
+                {
+                    if (field.FieldType == typeof(int[]))
+                    {
+                        field.SetValue(this, dic[field.Name].Split(", ").Select(n => Convert.ToInt32(n)).ToArray());
+                    }
+                    else field.SetValue(this, dic[field.Name]);
+                }
+            }
+        }
+
+        public class Data
+        {
+            public Values values;
+        }
+
+        public int version;
+        public Data data;
+
+        public DDTestFormat(Dictionary<string, string> dic)
+        {
+            version = int.Parse(dic["version"]);
+            data = new Data();
+            data.values = new Values(dic);
+        }
     }
 }
