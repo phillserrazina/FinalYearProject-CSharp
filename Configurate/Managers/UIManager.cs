@@ -72,6 +72,11 @@ namespace Configurate.Managers
             return new SettingsTO(newGrid, newLabel, newTextBox);
         }
 
+        private static void TextChangedEventHandler(object sender, TextChangedEventArgs args)
+        {
+            ApplicationsManager.OnDirty?.Invoke(true);
+        }
+
         public static Button CreateApplicationButton(string appName, ImageSource imageSource, RoutedEventHandler buttonEvent)
         {
             var cdef1 = new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) };
@@ -119,9 +124,63 @@ namespace Configurate.Managers
             return newButton;
         }
 
-        private static void TextChangedEventHandler(object sender, TextChangedEventArgs args)
+        public static Button CreateSharedPostButton(string postOwner, string postContent, RoutedEventHandler buttonEvent)
         {
-            ApplicationsManager.OnDirty?.Invoke(true);
+            var dockPanel = new DockPanel
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
+                Width = double.NaN,
+                Height = double.NaN
+            };
+
+            var ownerLabel = new Label
+            {
+                Name = "Label",
+                Content = postOwner,
+                Width = double.NaN,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Center,
+                FontWeight = FontWeights.Bold
+            };
+
+            var descriptionText = new TextBlock
+            {
+                Text = postContent,
+                Margin = new Thickness(5, 0, 5, 0),
+                TextWrapping = TextWrapping.Wrap,
+                VerticalAlignment = VerticalAlignment.Stretch
+            };
+
+            var ratingLabel = new Label
+            {
+                Name = "Label",
+                Content = "Rating: *****",
+                Width = double.NaN,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom
+            };
+
+            dockPanel.Children.Add(ownerLabel);
+            dockPanel.Children.Add(descriptionText);
+            dockPanel.Children.Add(ratingLabel);
+
+            DockPanel.SetDock(ownerLabel, Dock.Top);
+            DockPanel.SetDock(descriptionText, Dock.Top);
+            DockPanel.SetDock(ratingLabel, Dock.Bottom);
+
+            var button = new Button
+            {
+                Margin = new Thickness(2),
+                Content = dockPanel,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                VerticalContentAlignment = VerticalAlignment.Stretch
+            };
+
+            button.Click += buttonEvent;
+
+            return button;
         }
     }
 }

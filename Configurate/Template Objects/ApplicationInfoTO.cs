@@ -13,6 +13,7 @@ namespace Configurate.TemplateObjects
         public string Path { get; private set; }
         public string CurfPath { get; private set; }
         public ImageSource Icon { get; private set; }
+        public string Extension { get { return System.IO.Path.GetExtension(Path); } }
 
         // CONSTRUCTORS
         public ApplicationInfoTO(string Name, string Path)
@@ -20,6 +21,7 @@ namespace Configurate.TemplateObjects
             this.Name = Name;
             this.Path = Path;
 
+            // Get the CURF path
             CurfPath = $"{Defaults.CURFS}\\{this.Name}.curf";
 
             // CHANGE THIS TO DEFAULTS' SETUP
@@ -28,9 +30,13 @@ namespace Configurate.TemplateObjects
             //var iconURI = new Uri(iconPath, UriKind.RelativeOrAbsolute);
             //Icon = new BitmapImage(iconURI);
 
-            string folderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\Configurate\\Icons\\";
-            string iconPath = $"{folderPath}{this.Name}_Logo.png";
-            if (!File.Exists(iconPath)) iconPath = $"{folderPath}Unknown.png";
+            // Get the icon path
+            string iconPath = $"{Defaults.ICONS}\\{this.Name}_Logo.png";
+
+            // If the icon doesn't exist, switch to the unknown icon
+            if (!File.Exists(iconPath)) iconPath = $"{Defaults.ICONS}\\Unknown.png";
+
+            // Convert path to icon
             var iconURI = new Uri(iconPath, UriKind.Absolute);
             Icon = new BitmapImage(iconURI);
         }

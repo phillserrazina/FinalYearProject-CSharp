@@ -3,26 +3,35 @@ using System.IO;
 using System.Collections.Generic;
 using Configurate.Tools;
 using System.Linq;
+using System.Windows.Controls;
+using System.Windows;
 
 namespace Configurate.Managers
 {
     class SetupManager
     {
-
+        // VARIABLES
         public Dictionary<string, string> ApplicationInfo = new Dictionary<string, string>();
 
+        // CONSTRUCTOR
         public SetupManager()
         {
+            // Make tooltips last longer
+            ToolTipService.ShowDurationProperty.OverrideMetadata(
+                typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
+
+            // Set up AppData files
             SetupIcons();
             SetupCurfs();
             SetupApplicationsFile();
         }
 
+        // METHODS
         private void SetupIcons()
         {
             var iconsFiles = Directory.GetFiles(@"../../../Images");
 
-            string iconsDirectory = $"{Defaults.ROAMING}\\Configurate\\Icons";
+            string iconsDirectory = Defaults.ICONS;
 
             foreach (var file in iconsFiles)
             {
@@ -46,7 +55,7 @@ namespace Configurate.Managers
         {
             var curfs = Directory.GetFiles(@"../../../CURFs");
 
-            string curfsDirectory = $"{Defaults.ROAMING}\\Configurate\\CURFs";
+            string curfsDirectory = Defaults.CURFS;
 
             foreach (var file in curfs)
             {
@@ -68,13 +77,13 @@ namespace Configurate.Managers
 
         private void SetupApplicationsFile()
         {
-            string setupPath = $"{Defaults.ROAMING}\\Configurate\\Setup\\Applications.txt";
+            string setupPath = $"{Defaults.SETUP}\\Applications.txt";
 
             if (!File.Exists(setupPath))
             {
-                if (!Directory.Exists($"{Defaults.ROAMING}\\Configurate\\Setup\\"))
+                if (!Directory.Exists(Defaults.SETUP))
                 {
-                    Directory.CreateDirectory($"{Defaults.ROAMING}\\Configurate\\Setup\\");
+                    Directory.CreateDirectory(Defaults.SETUP);
                 }
 
                 File.Copy(@"../../../Applications.txt", setupPath);

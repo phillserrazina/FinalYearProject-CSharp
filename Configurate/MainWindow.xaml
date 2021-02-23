@@ -65,8 +65,23 @@
             </GroupBox>
 
             <GroupBox x:Name="ShareGroupBox" Header="Shared *Application* Settings" Grid.Column="0" Visibility="Hidden">
+                
                 <ScrollViewer>
-                    <StackPanel x:Name="ShareStackPanel"/>
+                    <StackPanel>
+                        <Grid Height="30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Content="Share" Grid.Column="0" Margin="2" />
+                            <Button Content="Refresh" Grid.Column="1" Margin="2"/>
+                            <Button Content="X" Foreground="White" Background="Red" Grid.Column="3" Margin="2, 2, 70, 2" Click="CloseShareWindow" FontWeight="Bold" />
+                        </Grid>
+
+                        <StackPanel x:Name="SharePostsStackPanel"/>
+                    </StackPanel>
                 </ScrollViewer>
             </GroupBox>
 
@@ -94,7 +109,22 @@
 
                             <Button x:Name="SaveButton" Content="Save" Grid.Column="0" Grid.Row="0" Margin="2"/>
                             <Button x:Name="ShareButton" Content="Share" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                            <Button x:Name="AutoFillButton" Content="Auto Fill" Grid.Column="2" Grid.Row="0" Margin="2"/>
+                            <!-- <Button x:Name="AutoFillButton" Content="Auto Fill" Grid.Column="2" Grid.Row="0" Margin="2"/> -->
+                            <Menu Background="{DynamicResource {x:Static SystemColors.ControlBrush}}" BorderBrush="Gray" BorderThickness="1" Width="Auto" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Grid.Column="2" Margin="2">
+
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Rows="1"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <MenuItem Header="Autofill" Width="Auto" HorizontalAlignment="Center">
+                                    <MenuItem Header="High" Click="HighFill"/>
+                                    <MenuItem Header="Mid" Click="MidFill"/>
+                                    <MenuItem Header="Low" Click="LowFill"/>
+                                    <MenuItem Header="Recommended" Click="Autofill"/>
+                                </MenuItem>
+                            </Menu>
 
                         </Grid>
                     </ListBox>
