@@ -26,6 +26,22 @@ namespace Configurate.Tools
         // METHODS
         private void SetUpSettingsObjects(object sender, RoutedEventArgs eventArgs)
         {
+            if (ApplicationsManager.IsDirty)
+            {
+                var saveSettingsResult = MessageBox.Show("Do you wish to save before closing?", "Unsaved Changes", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+
+                if (saveSettingsResult == MessageBoxResult.Yes)
+                {
+                    // SHOULD NOT BE DOING THIS!!!
+                    var main = Application.Current.MainWindow as MainWindow;
+                    if (main != null)
+                    {
+                        main.SaveCurrentFile();
+                    }
+                }
+                else if (saveSettingsResult == MessageBoxResult.Cancel) return;
+            }
+
             settingsStackPanel.Children.Clear();
             var scrollView = settingsStackPanel.Parent as ScrollViewer;
             var grid = scrollView.Parent as Grid;

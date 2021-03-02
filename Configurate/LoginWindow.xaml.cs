@@ -25,6 +25,9 @@ namespace Configurate
         public LoginWindow()
         {
             InitializeComponent();
+
+            UsernameTextBox.Text = "PhillAdmin";
+            PasswordTextBox.Password = "admin";
         }
 
         public void OnWindowExit(object sender, CancelEventArgs e)

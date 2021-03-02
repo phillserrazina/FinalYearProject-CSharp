@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Configurate.TemplateObjects
+﻿namespace Configurate.TemplateObjects
 {
     class UserTO
     {

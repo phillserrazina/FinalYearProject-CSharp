@@ -67,7 +67,7 @@
             <GroupBox x:Name="ShareGroupBox" Header="Shared *Application* Settings" Grid.Column="0" Visibility="Hidden">
                 
                 <ScrollViewer>
-                    <StackPanel>
+                    <StackPanel Margin="0, 5, 0, 0">
                         <Grid Height="30">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="3*"/>
@@ -75,14 +75,48 @@
                                 <ColumnDefinition Width="3*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Button Content="Share" Grid.Column="0" Margin="2" />
-                            <Button Content="Refresh" Grid.Column="1" Margin="2"/>
+                            <Button Content="Share" Grid.Column="0" Margin="2" Click="OpenNewPostWindow"/>
+                            <Button Content="Refresh" Grid.Column="1" Margin="2" Click="RefreshPosts"/>
                             <Button Content="X" Foreground="White" Background="Red" Grid.Column="3" Margin="2, 2, 70, 2" Click="CloseShareWindow" FontWeight="Bold" />
                         </Grid>
 
                         <StackPanel x:Name="SharePostsStackPanel"/>
                     </StackPanel>
                 </ScrollViewer>
+            </GroupBox>
+
+            <GroupBox x:Name="NewPostGroupBox" Header="New Post" Grid.Column="0" Visibility="Hidden">
+                <StackPanel Margin="0, 5, 0, 0">
+                    <Grid Height="30">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Post" Grid.Column="0" Margin="2" Click="CreateNewPost"/>
+                        <Button Content="Cancel" Grid.Column="1" Margin="2" Click="CloseNewPostWindow"/>
+                    </Grid>
+
+                    <Grid>
+                        <TextBox x:Name="PostDescriptionTextBox" TextWrapping="Wrap" Text="" Margin="2" Height="200"/>
+
+                        <TextBlock IsHitTestVisible="False" Text="Description..." VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5,3,0,0" Foreground="DarkGray">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=PostDescriptionTextBox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+
+                    
+                </StackPanel>
             </GroupBox>
 
             <GroupBox x:Name="SettingsGroupBox" Header="Select an Application" Grid.Column="1">
