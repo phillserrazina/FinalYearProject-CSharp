@@ -14,6 +14,10 @@ using Microsoft.Win32;
 using System.Linq;
 using System.Reflection;
 
+using IronPython.Hosting;
+using System.Text;
+using System.Diagnostics;
+
 namespace Configurate.Tools
 {
     class FileUtils
@@ -21,17 +25,31 @@ namespace Configurate.Tools
         // METHODS
         public static Dictionary<string, string> Parse(string path)
         {
-            var fileType = Path.GetExtension(path);
+            //var fileType = Path.GetExtension(path);
 
+            //MessageBox.Show(ReadPython(path, "IniParser.py"));
+
+            try
+            {
+                return ParseJsonText(ReadPython(path, "IniParser.py"));
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+
+            /*
             switch (fileType)
             {
                 case ".ini": return ParseIni(path);
-                case ".json": return ParseJson(path);
+                case ".json": return ParseJsonText(ReadPython(path, "JsonParser.py"));
 
                 default:
                     MessageBox.Show("Unsupported File Type: " + fileType, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
                     return null;
             }
+            */
         }
 
         public static void Save(Dictionary<string, string> dic, string path)
@@ -166,6 +184,40 @@ namespace Configurate.Tools
             return answer;
         }
 
+        private static Dictionary<string, string> ParseJsonText(string contents)
+        {
+            var answer = new Dictionary<string, string>();
+
+            using (var reader = new JsonTextReader(new StringReader(contents)))
+            {
+                while (reader.Read())
+                {
+                    if (reader.Value == null) continue;
+                    string key = reader.Path;
+                    if (key.Contains('.'))
+                    {
+                        key = Path.GetExtension(key);
+                        key = key.Substring(1);
+                    }
+
+                    if (key == reader.Value.ToString()) continue;
+
+                    if (key.Contains('['))
+                    {
+                        var splitKey = key.Split('[');
+                        key = splitKey[0];
+                    }
+
+                    //key = string.Format("{0} ({1})", key, Path.GetExtension(reader.ValueType.ToString()).Substring(1));
+                    if (!answer.ContainsKey(key))
+                        answer.Add(key, reader.Value.ToString());
+                    else answer[key] += $", {reader.Value}";
+                }
+            }
+
+            return answer;
+        }
+
         public static Dictionary<string, Dictionary<string, string>> ParseCurf(string curfPath, Dictionary<string, string> currentDictionary, ref Dictionary<string, string> curfRealDic)
         {
             var answer = new Dictionary<string, Dictionary<string, string>>();
@@ -208,16 +260,16 @@ namespace Configurate.Tools
                             description = propertyList[1].Substring(0, propertyList[1].Length - 1);
                         }
 
-                        if (currentDictionary.ContainsKey(rawVarName))
+                        if (currentDictionary.ContainsKey(rawVarName.ToLower()))
                         {
                             var propertiesDic = new Dictionary<string, string>()
                             {
-                                { "Value", currentDictionary[rawVarName] },
+                                { "Value", currentDictionary[rawVarName.ToLower()] },
                                 { "Description", description }
                             };
 
                             answer.Add(newVarName, propertiesDic);
-                            curfRealDic.Add(newVarName, rawVarName);
+                            curfRealDic.Add(newVarName, rawVarName.ToLower());
                         }
                     }
                 }
@@ -340,7 +392,26 @@ namespace Configurate.Tools
         }
         */
         #endregion
+
+        // Returns a json representation of the dictionary
+        public static string ReadPython(string fileToBeParsed, string parserFileName)
+        {
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = "C:\\Python34\\python.exe";
+            start.Arguments = Defaults.PARSERS + "\\" + parserFileName + " \"" + fileToBeParsed + "\"";
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            using (Process process = Process.Start(start))
+            {
+                using (StreamReader reader = process.StandardOutput)
+                {
+                    string result = reader.ReadToEnd();
+                    return result;
+                }
+            }
+        }
     }
+
 
     public class DDTestFormat
     {

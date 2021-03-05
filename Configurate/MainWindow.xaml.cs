@@ -9,6 +9,8 @@ using System;
 using System.Reflection;
 using System.Linq;
 using System.Management;
+using IronPython.Hosting;
+using System.Text;
 
 namespace Configurate
 {
@@ -21,6 +23,24 @@ namespace Configurate
         public MainWindow()
         {
             InitializeComponent();
+
+            /*
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = "C:\\Python34\\python.exe";
+            start.Arguments = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\cstest.py";
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            using (Process process = Process.Start(start))
+            {
+                using (StreamReader reader = process.StandardOutput)
+                {
+                    string result = reader.ReadToEnd();
+                    MessageBox.Show(result);
+                }
+            }
+            */
+
+            //MessageBox.Show(FileUtils.ReadPython("persist.options.json", "JsonParser.py"));
 
             //MessageBox.Show($"This computer has {Environment.ProcessorCount} processors.");
 
