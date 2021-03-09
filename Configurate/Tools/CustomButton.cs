@@ -33,7 +33,7 @@ namespace Configurate.Tools
                 if (saveSettingsResult == MessageBoxResult.Yes)
                 {
                     // SHOULD NOT BE DOING THIS!!!
-                    var main = Application.Current.MainWindow as MainWindow;
+                    MainWindow main = Application.Current.MainWindow as MainWindow;
                     if (main != null)
                     {
                         main.SaveCurrentFile();
@@ -50,7 +50,7 @@ namespace Configurate.Tools
             groupBox.Header = "Select an Application";
 
             var curfRealDic = new Dictionary<string, string>();
-            var dic = FileUtils.ParseCurf(myApplication.CurfPath, FileUtils.Parse(myApplication.Path), ref curfRealDic);
+            var dic = FileUtils.ParseCurf(myApplication.CurfPath, FileUtils.Parse(myApplication.Path, myApplication.ParserPath), ref curfRealDic);
             if (dic == null) return;
 
             topBar.Visibility = Visibility.Visible;

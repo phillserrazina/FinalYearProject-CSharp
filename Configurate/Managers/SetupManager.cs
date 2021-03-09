@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using Configurate.Tools;
+using Configurate.TemplateObjects;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows;
@@ -11,7 +12,7 @@ namespace Configurate.Managers
     class SetupManager
     {
         // VARIABLES
-        public Dictionary<string, string> ApplicationInfo = new Dictionary<string, string>();
+        public List<ApplicationSetupInfoTO> ApplicationInfo = new List<ApplicationSetupInfoTO>();
 
         // CONSTRUCTOR
         public SetupManager()
@@ -99,9 +100,14 @@ namespace Configurate.Managers
                     line = reader.ReadLine();
                     if (!string.IsNullOrEmpty(line))
                     {
+                        if (line[0] == '\\') continue;
                         var valuePair = line.Split('=');
                         string appName = valuePair[0];
-                        string appPath = valuePair[1];
+                        var arguments = valuePair[1].Split(':');
+
+                        string appPath = arguments[0];
+                        string appParser = arguments[1];
+                        string appSaver = arguments[2];
 
                         appPath = appPath.Replace("$DOCUMENTS$", Defaults.DOCUMENTS);
                         appPath = appPath.Replace("$ROAMING$", Defaults.ROAMING);
@@ -110,7 +116,9 @@ namespace Configurate.Managers
 
                         appPath = appPath.Replace('\\', '/');
 
-                        ApplicationInfo.Add(appName, appPath);
+                        var appSetupInfo = new ApplicationSetupInfoTO(appName, appPath, appParser, appSaver);
+
+                        ApplicationInfo.Add(appSetupInfo);
                     }
                 }
             }

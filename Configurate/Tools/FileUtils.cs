@@ -23,47 +23,65 @@ namespace Configurate.Tools
     class FileUtils
     {
         // METHODS
-        public static Dictionary<string, string> Parse(string path)
+        public static Dictionary<string, string> Parse(string path, string parserFile)
         {
-            //var fileType = Path.GetExtension(path);
+            string fileType = GetFileType(path);
 
-            //MessageBox.Show(ReadPython(path, "IniParser.py"));
+            if (fileType == ".ini")
+            {
+                return ParseIni(path);
+            }
 
             try
             {
-                return ParseJsonText(ReadPython(path, "IniParser.py"));
+                var result = PythonParse(parserFile, path);
+
+                string errorCheck = result.Substring(0, 6);
+                if (errorCheck == "Error:")
+                {
+                    MessageBox.Show(result, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return null;
+                }
+
+                return ParseJsonText(result);
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }
-
-            /*
-            switch (fileType)
-            {
-                case ".ini": return ParseIni(path);
-                case ".json": return ParseJsonText(ReadPython(path, "JsonParser.py"));
-
-                default:
-                    MessageBox.Show("Unsupported File Type: " + fileType, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return null;
-            }
-            */
         }
 
-        public static void Save(Dictionary<string, string> dic, string path)
+        public static void Save(Dictionary<string, string> dic, string path, string parserFile)
         {
-            var fileType = Path.GetExtension(path);
+            string fileType = GetFileType(path);
 
-            switch (fileType)
+            if (fileType == ".ini")
             {
-                case ".ini": SaveIni(dic, path); break;
-                case ".json": SaveJson(dic, path); break;
+                MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                SaveIni(dic, path);
+                return;
+            }
 
-                default:
-                    MessageBox.Show("Unsupported File Type: " + fileType, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+            try
+            {
+                string args = JsonConvert.SerializeObject(dic);
+                MessageBox.Show(args);
+
+                var result = PythonSave(parserFile, path, args);
+
+                string errorCheck = result.Substring(0, 6);
+                if (errorCheck == "Error:")
+                {
+                    MessageBox.Show(result, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
+                }
+
+                MessageBox.Show(result, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -208,7 +226,6 @@ namespace Configurate.Tools
                         key = splitKey[0];
                     }
 
-                    //key = string.Format("{0} ({1})", key, Path.GetExtension(reader.ValueType.ToString()).Substring(1));
                     if (!answer.ContainsKey(key))
                         answer.Add(key, reader.Value.ToString());
                     else answer[key] += $", {reader.Value}";
@@ -222,11 +239,11 @@ namespace Configurate.Tools
         {
             var answer = new Dictionary<string, Dictionary<string, string>>();
 
+            if (currentDictionary == null) return null;
+            if (currentDictionary.Count == 0) return null;
+
             if (!File.Exists(curfPath))
             {
-                if (currentDictionary == null) return null;
-                if (currentDictionary.Count == 0) return null;
-
                 foreach (var key in currentDictionary.Keys)
                 {
                     answer.Add(key, new Dictionary<string, string>() { { "Value", currentDictionary[key] } });
@@ -260,16 +277,18 @@ namespace Configurate.Tools
                             description = propertyList[1].Substring(0, propertyList[1].Length - 1);
                         }
 
-                        if (currentDictionary.ContainsKey(rawVarName.ToLower()))
+                        if (currentDictionary.ContainsKey(rawVarName))
                         {
                             var propertiesDic = new Dictionary<string, string>()
                             {
-                                { "Value", currentDictionary[rawVarName.ToLower()] },
+                                { "Value", currentDictionary[rawVarName] },
                                 { "Description", description }
                             };
 
-                            answer.Add(newVarName, propertiesDic);
-                            curfRealDic.Add(newVarName, rawVarName.ToLower());
+                            if (!answer.ContainsKey(newVarName)) {
+                                answer.Add(newVarName, propertiesDic);
+                                curfRealDic.Add(newVarName, rawVarName);
+                            }
                         }
                     }
                 }
@@ -319,17 +338,6 @@ namespace Configurate.Tools
             var contents = File.ReadAllText(path);
             var data = new DDTestFormat(dic);
             var result = JsonConvert.SerializeObject(data, Formatting.Indented);
-
-            //JObject obj = JObject.Parse(contents);
-
-            /*
-            foreach (var prop in obj.Properties().ToList())
-            {
-                JsonSaveHelper(prop, new List<string>(), ref obj, dic);
-            }
-            */
-
-            //string result = obj.ToString();
 
             if (!File.Exists(path))
             {
@@ -394,11 +402,29 @@ namespace Configurate.Tools
         #endregion
 
         // Returns a json representation of the dictionary
-        public static string ReadPython(string fileToBeParsed, string parserFileName)
+        private static string PythonParse(string parserFileName, string filePath)
         {
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "C:\\Python34\\python.exe";
-            start.Arguments = Defaults.PARSERS + "\\" + parserFileName + " \"" + fileToBeParsed + "\"";
+            start.Arguments = parserFileName + " \"" + filePath + "\"";
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            using (Process process = Process.Start(start))
+            {
+                using (StreamReader reader = process.StandardOutput)
+                {
+                    string result = reader.ReadToEnd();
+                    return result;
+                }
+            }
+        }
+
+        private static string PythonSave(string parserFileName, string filePath, string jsonArgs)
+        {
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = "C:\\Python34\\python.exe";
+            start.Arguments = parserFileName + " \"" + filePath + "\" \'" + jsonArgs.Replace("\"", "\"\"\"") + "\'";
+            MessageBox.Show(start.Arguments);
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
             using (Process process = Process.Start(start))

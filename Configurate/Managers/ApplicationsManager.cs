@@ -30,13 +30,13 @@ namespace Configurate.Managers
             ApplicationsList = appList;
         }
 
-        public static void Initialize(Dictionary<string, string> appDic)
+        public static void Initialize(List<ApplicationSetupInfoTO> appList)
         {
             ApplicationsList = new List<ApplicationInfoTO>();
 
-            foreach (var key in appDic.Keys)
+            foreach (var app in appList)
             {
-                ApplicationsList.Add(new ApplicationInfoTO(key, appDic[key]));    
+                ApplicationsList.Add(new ApplicationInfoTO(app.Name, app.Path, app.ParserFile, app.SaverFile));    
             }
         }
 

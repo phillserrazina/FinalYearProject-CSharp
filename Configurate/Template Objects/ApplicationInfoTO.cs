@@ -11,27 +11,22 @@ namespace Configurate.TemplateObjects
         // VARIABLES
         public readonly string Name;
         public string Path { get; private set; }
-        public string CurfPath { get; private set; }
-        public ImageSource Icon { get; private set; }
-        public string Extension { get { return System.IO.Path.GetExtension(Path); } }
+        public string CurfPath { get { return $"{Defaults.CURFS}\\{Name}.curf"; } }
+        public string ParserPath { get; private set; }
+        public string SaverPath { get; private set; }
+        public readonly ImageSource Icon;
+        public string Extension { get { return FileUtils.GetFileType(Path); } }
 
         // CONSTRUCTORS
-        public ApplicationInfoTO(string Name, string Path)
+        public ApplicationInfoTO(string Name, string Path, string ParserPath, string SaverPath)
         {
             this.Name = Name;
             this.Path = Path;
-
-            // Get the CURF path
-            CurfPath = $"{Defaults.CURFS}\\{this.Name}.curf";
-
-            // CHANGE THIS TO DEFAULTS' SETUP
-            //string iconPath = "/Images/" + Name + "_Logo.png";
-            //var iconURI = new Uri(@"pack://application:,,," + iconPath, UriKind.Absolute);
-            //var iconURI = new Uri(iconPath, UriKind.RelativeOrAbsolute);
-            //Icon = new BitmapImage(iconURI);
+            this.ParserPath = $"{Defaults.PARSERS}\\{ParserPath}";
+            this.SaverPath = $"{Defaults.PARSERS}\\{SaverPath}";
 
             // Get the icon path
-            string iconPath = $"{Defaults.ICONS}\\{this.Name}_Logo.png";
+            string iconPath = $"{Defaults.ICONS}\\{Name}_Logo.png";
 
             // If the icon doesn't exist, switch to the unknown icon
             if (!File.Exists(iconPath)) iconPath = $"{Defaults.ICONS}\\Unknown.png";

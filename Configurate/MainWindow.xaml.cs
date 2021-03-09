@@ -287,7 +287,7 @@ namespace Configurate
 
         private void ReplaceCurrentFile(string newPath)
         {
-            var realDic = FileUtils.Parse(newPath);
+            var realDic = FileUtils.Parse(newPath, ApplicationsManager.CurrentApplication.ParserPath);
             var curfRealDic = new Dictionary<string, string>();
             var curfDic = FileUtils.ParseCurf(ApplicationsManager.CurrentApplication.CurfPath, realDic, ref curfRealDic);
             if (curfDic == null)
@@ -329,8 +329,8 @@ namespace Configurate
 
             ApplicationsManager.OnDirty?.Invoke(false);
 
-            FileUtils.Save(dic, ApplicationsManager.CurrentApplication.Path);
-            MessageBox.Show("File Saved Successfuly", "Success");
+            FileUtils.Save(dic, ApplicationsManager.CurrentApplication.Path, ApplicationsManager.CurrentApplication.SaverPath);
+            //MessageBox.Show("File Saved Successfuly", "Success");
         }
 
         private void OnDirty(bool isDirty)
