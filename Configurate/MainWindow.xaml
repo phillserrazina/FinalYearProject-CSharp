@@ -18,6 +18,7 @@
         <DockPanel x:Name="TopBar" DockPanel.Dock="Top" Width="Auto" HorizontalAlignment="Stretch" Grid.Row="0" Visibility="Collapsed">
             <Menu DockPanel.Dock="Top" Width="Auto" HorizontalAlignment="Stretch">
                 <MenuItem Header="Application" Width="Auto">
+                    <MenuItem Header="About" Click="OpenAboutWindow"/>
                     <MenuItem Header="Open Location" Click="OpenCurrentFileAtLocation"/>
                     <MenuItem Header="Edit Location" Click="EditApplicationLocation"/>
                     <MenuItem Header="Export File" Click="ExportCurrentFile"/>
@@ -58,14 +59,52 @@
                 <ColumnDefinition Width="4*"/>
                 <ColumnDefinition Width="6*"/>
             </Grid.ColumnDefinitions>
+            
             <GroupBox x:Name="ApplicationsGroupBox" Header="My Applications" Grid.Column="0" Visibility="Visible">
                 <ScrollViewer>
                     <StackPanel x:Name="ApplicationsStackPanel"/>
                 </ScrollViewer>
             </GroupBox>
 
+            <GroupBox x:Name="AppInfoGroupBox" Header="*Application Name*" Grid.Column="0" Visibility="Hidden">
+                <ScrollViewer>
+                    <StackPanel Margin="0, 5, 0, 0">
+                        <Button Content="X" Foreground="White" Background="Red" Grid.Column="3" Width="20" HorizontalAlignment="Left" Margin="5" Click="CloseAboutWindow" FontWeight="Bold" />
+                        
+                        <TextBlock Margin="5, 0, 0, 0" Text="Path" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock x:Name="PathText" TextWrapping="Wrap" Margin="10, 0, 0, 0" Text="C:\This is a\Random\Test\Path.ini"/>
+                        <TextBlock Height="5"/>
+
+                        <TextBlock Margin="5, 0, 0, 0" Text="Parser" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock x:Name="ParserText" TextWrapping="Wrap" Margin="10, 0, 0, 0" Text="Source (Type)"/>
+                        <TextBlock Height="5"/>
+
+                        <TextBlock Margin="5, 0, 0, 0" Text="Saver" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock x:Name="SaverText" TextWrapping="Wrap" Margin="10, 0, 0, 0" Text="External (Type)"/>
+                        <TextBlock Height="5"/>
+
+                        <TextBlock Height="20"/>
+
+                        <TextBlock Margin="5, 0, 0, 0" Text="Description" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock x:Name="DescriptionText" TextWrapping="Wrap" Margin="10, 0, 0, 0" Text="It's that application."/>
+                        <TextBlock Height="5"/>
+
+                        <TextBlock Margin="5, 0, 0, 0" Text="Developer" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock x:Name="DeveloperText" TextWrapping="Wrap" Margin="10, 0, 0, 0" Text="Lucerna"/>
+                        <TextBlock Height="5"/>
+                        
+                        <TextBlock Margin="5, 0, 0, 0" Text="Publisher" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock x:Name="PublisherText" TextWrapping="Wrap" Margin="10, 0, 0, 0" Text="Lucerna"/>
+                        <TextBlock Height="5"/>
+
+                        <TextBlock Margin="5, 0, 0, 0" Text="Release Date" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock x:Name="ReleaseDateText" TextWrapping="Wrap" Margin="10, 0, 0, 0" Text="01-01-2001"/>
+                        <TextBlock Height="5"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </GroupBox>
+
             <GroupBox x:Name="ShareGroupBox" Header="Shared *Application* Settings" Grid.Column="0" Visibility="Hidden">
-                
                 <ScrollViewer>
                     <StackPanel Margin="0, 5, 0, 0">
                         <Grid Height="30">

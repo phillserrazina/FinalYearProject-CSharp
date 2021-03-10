@@ -77,7 +77,7 @@ namespace Configurate.Managers
             ApplicationsManager.OnDirty?.Invoke(true);
         }
 
-        public static Button CreateApplicationButton(string appName, ImageSource imageSource, RoutedEventHandler buttonEvent)
+        public static Button CreateApplicationButton(ApplicationInfoTO app, RoutedEventHandler buttonEvent)
         {
             var cdef1 = new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) };
             var cdef2 = new ColumnDefinition { Width = new GridLength(90, GridUnitType.Star) };
@@ -92,13 +92,13 @@ namespace Configurate.Managers
                 Name = "Image",
                 Margin = new Thickness(2),
                 HorizontalAlignment = HorizontalAlignment.Stretch,
-                Source = imageSource
+                Source = app.Icon
             };
 
             var newLabel = new Label
             {
                 Name = "Label",
-                Content = appName,
+                Content = app.Name,
                 Width = double.NaN,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,

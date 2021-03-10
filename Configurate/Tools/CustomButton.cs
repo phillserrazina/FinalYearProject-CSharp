@@ -20,7 +20,7 @@ namespace Configurate.Tools
             myApplication = app;
             settingsStackPanel = stackPanel;
             this.topBar = topBar;
-            Button = UIManager.CreateApplicationButton(myApplication.Name, myApplication.Icon, new RoutedEventHandler(SetUpSettingsObjects));
+            Button = UIManager.CreateApplicationButton(myApplication, new RoutedEventHandler(SetUpSettingsObjects));
         }
 
         // METHODS

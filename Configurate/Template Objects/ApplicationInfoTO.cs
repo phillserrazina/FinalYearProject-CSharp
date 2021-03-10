@@ -17,13 +17,29 @@ namespace Configurate.TemplateObjects
         public readonly ImageSource Icon;
         public string Extension { get { return FileUtils.GetFileType(Path); } }
 
+        public string FinalParserPath { get; private set; }
+        public string FinalSaverPath { get; private set; }
+
+        public readonly string Description;
+        public readonly string Developer;
+        public readonly string Publisher;
+        public readonly string ReleaseDate;
+
         // CONSTRUCTORS
-        public ApplicationInfoTO(string Name, string Path, string ParserPath, string SaverPath)
+        public ApplicationInfoTO(ApplicationSetupInfoTO setupInfo)
         {
-            this.Name = Name;
-            this.Path = Path;
-            this.ParserPath = $"{Defaults.PARSERS}\\{ParserPath}";
-            this.SaverPath = $"{Defaults.PARSERS}\\{SaverPath}";
+            Name = setupInfo.Name;
+            Path = setupInfo.Path;
+            ParserPath = $"{Defaults.PARSERS}\\{setupInfo.ParserFile}";
+            SaverPath = $"{Defaults.PARSERS}\\{setupInfo.SaverFile}";
+
+            FinalParserPath = setupInfo.ParserFile;
+            FinalSaverPath = setupInfo.SaverFile;
+
+            Description = setupInfo.Description;
+            Developer = setupInfo.Developer;
+            Publisher = setupInfo.Publisher;
+            ReleaseDate = setupInfo.ReleaseDate;
 
             // Get the icon path
             string iconPath = $"{Defaults.ICONS}\\{Name}_Logo.png";

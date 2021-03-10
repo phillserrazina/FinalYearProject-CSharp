@@ -6,6 +6,8 @@ using Configurate.TemplateObjects;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows;
+using IniParser;
+using IniParser.Model;
 
 namespace Configurate.Managers
 {
@@ -79,6 +81,7 @@ namespace Configurate.Managers
         private void SetupApplicationsFile()
         {
             string setupPath = $"{Defaults.SETUP}\\Applications.txt";
+            string newSetupPath = $"{Defaults.CONFIGURATE}\\Setup.ini";
 
             if (!File.Exists(setupPath))
             {
@@ -90,37 +93,16 @@ namespace Configurate.Managers
                 File.Copy(@"../../../Applications.txt", setupPath);
             }
 
-            string line = "";
+            var parser = new FileIniDataParser();
+            IniData data = parser.ReadFile(newSetupPath);
+            var allSections = data.Sections;
 
-            using (var reader = new StreamReader(setupPath))
+            foreach (var section in allSections)
             {
+                if (section.Keys["Active"] == "false") continue;
 
-                while (line != null)
-                {
-                    line = reader.ReadLine();
-                    if (!string.IsNullOrEmpty(line))
-                    {
-                        if (line[0] == '\\') continue;
-                        var valuePair = line.Split('=');
-                        string appName = valuePair[0];
-                        var arguments = valuePair[1].Split(':');
-
-                        string appPath = arguments[0];
-                        string appParser = arguments[1];
-                        string appSaver = arguments[2];
-
-                        appPath = appPath.Replace("$DOCUMENTS$", Defaults.DOCUMENTS);
-                        appPath = appPath.Replace("$ROAMING$", Defaults.ROAMING);
-                        appPath = appPath.Replace("$LOCAL$", Defaults.LOCAL);
-                        appPath = appPath.Replace("$LOW$", Defaults.LOW);
-
-                        appPath = appPath.Replace('\\', '/');
-
-                        var appSetupInfo = new ApplicationSetupInfoTO(appName, appPath, appParser, appSaver);
-
-                        ApplicationInfo.Add(appSetupInfo);
-                    }
-                }
+                var appSetupInfo = new ApplicationSetupInfoTO(section);
+                ApplicationInfo.Add(appSetupInfo);
             }
         }
     }

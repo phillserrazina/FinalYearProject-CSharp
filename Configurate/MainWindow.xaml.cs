@@ -190,8 +190,7 @@ namespace Configurate
 
             ShareGroupBox.Header = $"Shared { ApplicationsManager.CurrentApplication.Name } Settings";
 
-            ApplicationsGroupBox.Visibility = Visibility.Hidden;
-            ShareGroupBox.Visibility = Visibility.Visible;
+            TriggerLeftWindow("Share");
 
             UpdateSharePosts();
         }
@@ -202,8 +201,7 @@ namespace Configurate
 
             Title = $"Configurate ({ NetworkManager.CurrentUser.Username })";
 
-            ApplicationsGroupBox.Visibility = Visibility.Hidden;
-            ShareGroupBox.Visibility = Visibility.Visible;
+            TriggerLeftWindow("Share");
 
             UpdateSharePosts();
         }
@@ -230,8 +228,7 @@ namespace Configurate
 
         private void OpenNewPostWindow(object sender, RoutedEventArgs eventArgs)
         {
-            ShareGroupBox.Visibility = Visibility.Hidden;
-            NewPostGroupBox.Visibility = Visibility.Visible;
+            TriggerLeftWindow("Post");
         }
 
         private void CloseNewPostWindow(object sender, RoutedEventArgs eventArgs)
@@ -256,8 +253,7 @@ namespace Configurate
                 File.Copy(ApplicationsManager.CurrentApplication.Path, $"{Defaults.CONFIGURATE}\\Server\\{result.Item1.ID}{ApplicationsManager.CurrentApplication.Extension}");
                 UpdateSharePosts();
 
-                ShareGroupBox.Visibility = Visibility.Visible;
-                NewPostGroupBox.Visibility = Visibility.Hidden;
+                TriggerLeftWindow("Share");
             }
         }
 
@@ -368,6 +364,37 @@ namespace Configurate
         {
             ShareGroupBox.Visibility = Visibility.Hidden;
             ApplicationsGroupBox.Visibility = Visibility.Visible;
+        }
+
+        private void OpenAboutWindow(object sender, RoutedEventArgs e)
+        {
+            var app = ApplicationsManager.CurrentApplication;
+
+            PathText.Text = app.Path;
+            ParserText.Text = app.FinalParserPath.Contains(".py") ? $"External ({app.FinalParserPath})" : $"Source ({app.FinalParserPath})";
+            SaverText.Text = app.FinalSaverPath.Contains(".py") ? $"External ({app.FinalSaverPath})" : $"Source ({app.FinalSaverPath})";
+
+            DescriptionText.Text = app.Description;
+            DeveloperText.Text = app.Developer;
+            PublisherText.Text = app.Publisher;
+            ReleaseDateText.Text = app.ReleaseDate;
+
+            AppInfoGroupBox.Header = app.Name + " (About)";
+            TriggerLeftWindow("Info");
+        }
+
+        private void CloseAboutWindow(object sender, RoutedEventArgs e)
+        {
+            AppInfoGroupBox.Visibility = Visibility.Hidden;
+            ApplicationsGroupBox.Visibility = Visibility.Visible;
+        }
+
+        private void TriggerLeftWindow(string window)
+        {
+            AppInfoGroupBox.Visibility = (window == "Info") ? Visibility.Visible : Visibility.Hidden;
+            ApplicationsGroupBox.Visibility = (window == "Apps") ? Visibility.Visible : Visibility.Hidden;
+            ShareGroupBox.Visibility = (window == "Share") ? Visibility.Visible : Visibility.Hidden;
+            NewPostGroupBox.Visibility = (window == "Post") ? Visibility.Visible : Visibility.Hidden;
         }
     }
 }

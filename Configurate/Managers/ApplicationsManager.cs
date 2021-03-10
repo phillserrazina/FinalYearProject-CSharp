@@ -36,7 +36,7 @@ namespace Configurate.Managers
 
             foreach (var app in appList)
             {
-                ApplicationsList.Add(new ApplicationInfoTO(app.Name, app.Path, app.ParserFile, app.SaverFile));    
+                ApplicationsList.Add(new ApplicationInfoTO(app));    
             }
         }
 
