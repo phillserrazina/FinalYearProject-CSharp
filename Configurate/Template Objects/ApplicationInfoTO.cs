@@ -30,8 +30,8 @@ namespace Configurate.TemplateObjects
         {
             Name = setupInfo.Name;
             Path = setupInfo.Path;
-            ParserPath = $"{Defaults.PARSERS}\\{setupInfo.ParserFile}";
-            SaverPath = $"{Defaults.PARSERS}\\{setupInfo.SaverFile}";
+            ParserPath = setupInfo.ParserFile.Contains(".py") ? $"{Defaults.PARSERS}\\{setupInfo.ParserFile}" : setupInfo.ParserFile;
+            SaverPath = setupInfo.SaverFile.Contains(".py") ? $"{Defaults.PARSERS}\\{setupInfo.SaverFile}" : setupInfo.SaverFile;
 
             FinalParserPath = setupInfo.ParserFile;
             FinalSaverPath = setupInfo.SaverFile;

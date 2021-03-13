@@ -12,10 +12,9 @@ using System.Collections.Generic;
 using Microsoft.Win32;
 
 using System.Linq;
+using System.Xml.Linq;
 using System.Reflection;
 
-using IronPython.Hosting;
-using System.Text;
 using System.Diagnostics;
 
 namespace Configurate.Tools
@@ -25,11 +24,13 @@ namespace Configurate.Tools
         // METHODS
         public static Dictionary<string, string> Parse(string path, string parserFile)
         {
-            string fileType = GetFileType(path);
-
-            if (fileType == ".ini")
+            switch (parserFile)
             {
-                return ParseIni(path);
+                case "Ini": return ParseIni(path);
+                case "Json": return ParseJson(path);
+                case "Xml": return ParseXml(path);
+                
+                default: break;
             }
 
             try
@@ -54,13 +55,45 @@ namespace Configurate.Tools
 
         public static void Save(Dictionary<string, string> dic, string path, string parserFile)
         {
-            string fileType = GetFileType(path);
-
-            if (fileType == ".ini")
+            switch (parserFile)
             {
-                MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
-                SaveIni(dic, path);
-                return;
+                case "Ini":
+                    try
+                    {
+                        SaveIni(dic, path); 
+                        MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("There was an error. Try again.", "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    return;
+
+                case "Json":
+                    try
+                    {
+                        SaveJson(dic, path);
+                        MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("There was an error. Try again.", "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    return;
+
+                case "Xml":
+                    try
+                    {
+                        SaveXml(dic, path);
+                        MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("There was an error. Try again.", "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    return;
+
+                default: break;
             }
 
             try
@@ -167,39 +200,8 @@ namespace Configurate.Tools
 
         private static Dictionary<string, string> ParseJson(string path)
         {
-            
-            var answer = new Dictionary<string, string>();
-
             var contents = File.ReadAllText(path);
-
-            using (var reader = new JsonTextReader(new StringReader(contents)))
-            {
-                while (reader.Read())
-                {
-                    if (reader.Value == null) continue;
-                    string key = reader.Path;
-                    if (key.Contains('.'))
-                    {
-                        key = Path.GetExtension(key);
-                        key = key.Substring(1);
-                    }
-                    
-                    if (key == reader.Value.ToString()) continue;
-
-                    if (key.Contains('['))
-                    {
-                        var splitKey = key.Split('[');
-                        key = splitKey[0];
-                    }
-
-                    //key = string.Format("{0} ({1})", key, Path.GetExtension(reader.ValueType.ToString()).Substring(1));
-                    if (!answer.ContainsKey(key))
-                        answer.Add(key, reader.Value.ToString());
-                    else answer[key] += $", {reader.Value}";
-                }
-            }
-
-            return answer;
+            return ParseJsonText(contents);
         }
 
         private static Dictionary<string, string> ParseJsonText(string contents)
@@ -229,6 +231,36 @@ namespace Configurate.Tools
                     if (!answer.ContainsKey(key))
                         answer.Add(key, reader.Value.ToString());
                     else answer[key] += $", {reader.Value}";
+                }
+            }
+
+            return answer;
+        }
+
+        private static Dictionary<string, string> ParseXml(string path)
+        {
+            var answer = new Dictionary<string, string>();
+
+            XElement xmlObject = XElement.Load(path);
+            var root = xmlObject.Elements();
+
+            RecursiveXmlFetch(root, ref answer);
+
+            return answer;
+        }
+
+        private static Dictionary<string, string> RecursiveXmlFetch(IEnumerable<XElement> elements, ref Dictionary<string, string> answer)
+        {
+            foreach (var element in elements)
+            {
+                if (element.HasElements)
+                {
+                    RecursiveXmlFetch(element.Elements(), ref answer);
+                }
+                else
+                {
+                    if (!answer.ContainsKey(element.Name.LocalName))
+                        answer.Add(element.Name.LocalName, element.Value);
                 }
             }
 
@@ -336,8 +368,7 @@ namespace Configurate.Tools
         private static void SaveJson(Dictionary<string, string> dic, string path)
         {
             var contents = File.ReadAllText(path);
-            var data = new DDTestFormat(dic);
-            var result = JsonConvert.SerializeObject(data, Formatting.Indented);
+            var result = JsonConvert.SerializeObject(dic, Newtonsoft.Json.Formatting.Indented);
 
             if (!File.Exists(path))
             {
@@ -346,6 +377,11 @@ namespace Configurate.Tools
             }
 
             File.WriteAllText(path, result);
+        }
+
+        private static void SaveXml(Dictionary<string, string> dic, string path)
+        {
+
         }
 
         // ============================
