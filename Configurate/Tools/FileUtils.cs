@@ -367,7 +367,6 @@ namespace Configurate.Tools
 
         private static void SaveJson(Dictionary<string, string> dic, string path)
         {
-            var contents = File.ReadAllText(path);
             var result = JsonConvert.SerializeObject(dic, Newtonsoft.Json.Formatting.Indented);
 
             if (!File.Exists(path))
@@ -381,7 +380,31 @@ namespace Configurate.Tools
 
         private static void SaveXml(Dictionary<string, string> dic, string path)
         {
+            XElement root = XElement.Load(path);
+            var childs = root.Elements();
 
+            RecursiveXmlSave(ref root, childs, dic);
+
+            root.Save(path);
+        }
+
+        private static void RecursiveXmlSave(ref XElement root, IEnumerable<XElement> elements, Dictionary<string, string> dic)
+        {
+            foreach (var element in elements)
+            {
+                if (element.HasElements)
+                {
+                    var newElements = element.Elements();
+                    RecursiveXmlSave(ref root, newElements, dic);
+                }
+                else
+                {
+                    if (dic.ContainsKey(element.Name.LocalName))
+                    {
+                        root.SetElementValue(element.Name.LocalName, dic[element.Name.LocalName]);
+                    }
+                }
+            }
         }
 
         // ============================
