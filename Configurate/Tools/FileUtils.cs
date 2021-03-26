@@ -473,6 +473,7 @@ namespace Configurate.Tools
                 using (StreamReader reader = process.StandardOutput)
                 {
                     string result = reader.ReadToEnd();
+                    MessageBox.Show(result);
                     return result;
                 }
             }

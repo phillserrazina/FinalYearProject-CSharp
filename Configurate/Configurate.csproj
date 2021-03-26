@@ -45,7 +45,11 @@
     <Resource Include="Images\Witcher 3_Logo.png" />
     <Resource Include="Images\Darkest Dungeon_Logo.png" />
     <Resource Include="Images\Sun Rings_Logo.png" />
-    <Resource Include="Applications.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Autofills\" />
+    <Folder Include="Parsers\" />
   </ItemGroup>
 
 </Project>

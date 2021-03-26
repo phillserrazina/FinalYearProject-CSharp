@@ -220,6 +220,12 @@ namespace Configurate
                     string filePath = $"{Defaults.CONFIGURATE}\\Server\\{post.ID}";
                     filePath += ApplicationsManager.CurrentApplication.Extension;
 
+                    if (!File.Exists(filePath))
+                    {
+                        MessageBox.Show("File not found on server, please contact an administrator.", "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
                     ReplaceCurrentFile(filePath);
                     ApplicationsManager.OnDirty?.Invoke(true);
                 })));
