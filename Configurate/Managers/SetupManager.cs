@@ -154,11 +154,6 @@ namespace Configurate.Managers
 
             if (!File.Exists(newSetupPath))
             {
-                if (!Directory.Exists(Defaults.SETUP))
-                {
-                    Directory.CreateDirectory(Defaults.SETUP);
-                }
-
                 File.Copy(@"../../../Setup.ini", newSetupPath);
             }
 

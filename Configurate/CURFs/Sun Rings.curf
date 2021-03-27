@@ -1,4 +1,12 @@
-generalVolume=General Volume
-musicVolume=Music Volume
-ambienceVolume=Ambience Volume
-sfxVolume=SFX Volume
+isFullscreen=Fullscreen
+currentResolutionWidth=Screen Width
+currentResolutionHeight=Screen Height
+quality=Quality Preset
+vsync=VSync
+shadows=Shadows
+antiAliasing=Anti-Aliasing
+mBlur=Motion Blur
+pProcessing=Post Processing
+texQuality=Texture Quality
+frameCapIndex=Frame Cap Index
+vegetation=Vegetation

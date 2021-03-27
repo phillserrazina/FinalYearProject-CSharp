@@ -16,6 +16,5 @@ namespace Configurate.Tools
         public static string PARSERS { get { return $"{CONFIGURATE}\\Parsers"; } }
         public static string CURFS { get { return $"{CONFIGURATE}\\CURFs"; } }
         public static string ICONS { get { return $"{CONFIGURATE}\\Icons"; } }
-        public static string SETUP { get { return $"{CONFIGURATE}\\Setup"; } }
     }
 }

@@ -468,12 +468,13 @@ namespace Configurate.Tools
             start.Arguments = parserFileName + " \"" + filePath + "\"";
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
+
             using (Process process = Process.Start(start))
             {
                 using (StreamReader reader = process.StandardOutput)
                 {
                     string result = reader.ReadToEnd();
-                    MessageBox.Show(result);
+                    //MessageBox.Show(result);
                     return result;
                 }
             }
@@ -487,6 +488,7 @@ namespace Configurate.Tools
             MessageBox.Show(start.Arguments);
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
+            
             using (Process process = Process.Start(start))
             {
                 using (StreamReader reader = process.StandardOutput)
