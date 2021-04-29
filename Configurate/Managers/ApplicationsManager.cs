@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Configurate.TemplateObjects;
 
 namespace Configurate.Managers
@@ -23,13 +21,8 @@ namespace Configurate.Managers
             OnDirty += (bool val) => { IsDirty = val; };
         }
 
-        // This is technically not a constructor, but it is an initialization method in case you ever want
-        // to pass the application list manually.
-        // This was made because static constructors do NOT accept parameters.
-        public static void Initialize(List<ApplicationInfoTO> appList) {
-            ApplicationsList = appList;
-        }
-
+        // This is technically not a constructor, but it is an initialization method in order 
+        // to inject the setup application list manually.
         public static void Initialize(List<ApplicationSetupInfoTO> appList)
         {
             ApplicationsList = new List<ApplicationInfoTO>();
@@ -38,38 +31,6 @@ namespace Configurate.Managers
             {
                 ApplicationsList.Add(new ApplicationInfoTO(app));    
             }
-        }
-
-        // METHODS
-        public static void Add(ApplicationInfoTO appInfo)
-        {
-            foreach (var app in ApplicationsList)
-            {
-                if (app.Path.Equals(appInfo.Path))
-                {
-                    // TODO: Print Error Message
-                    return;
-                }
-
-                ApplicationsList.Add(appInfo);
-            }
-        }
-
-        public static void Remove(ApplicationInfoTO appInfo)
-        {
-            if (ApplicationsList.Contains(appInfo)) ApplicationsList.Remove(appInfo);
-        }
-
-        public static ApplicationInfoTO GetApplication(string appName)
-        {
-            foreach (var app in ApplicationsList)
-            {
-                if (app.Name.Equals(appName))
-                    return app;
-            }
-
-            // TODO: Print Error Message
-            return null;
         }
     }
 }

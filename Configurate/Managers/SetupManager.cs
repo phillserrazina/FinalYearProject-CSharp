@@ -19,15 +19,21 @@ namespace Configurate.Managers
         // CONSTRUCTOR
         public SetupManager()
         {
-            // Make tooltips last longer
-            ToolTipService.ShowDurationProperty.OverrideMetadata(
-                typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
+            try
+            {
+                // Make tooltips last longer
+                ToolTipService.ShowDurationProperty.OverrideMetadata(
+                    typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
+            } catch { }
 
+            // Create Configurate's AppData folder
             if (!Directory.Exists(Defaults.CONFIGURATE))
             {
                 Directory.CreateDirectory(Defaults.CONFIGURATE);
             }
 
+            // Create temporary Server folder. In a release version this server
+            // would be an actual server on a web storage
             if (!Directory.Exists($"{Defaults.CONFIGURATE}\\Server"))
             {
                 Directory.CreateDirectory($"{Defaults.CONFIGURATE}\\Server");
@@ -39,134 +45,257 @@ namespace Configurate.Managers
             SetupParsers();
             SetupAutofills();
             SetupApplicationsFile();
+
+            // Retrieve application's from the Setup.ini file
+            UpdateApplications();
         }
 
         // METHODS
         private void SetupParsers()
         {
-            var parsers = Directory.GetFiles(@"../../../Parsers");
-
-            string parsersDirectory = Defaults.PARSERS;
-
-            foreach (var file in parsers)
+            try
             {
-                string fileName = file.Split('\\').Last<string>();
+                // Get all the default Parsers that come included with the project.
+                // This path is for the debug version only. The number of "../" might
+                // change depending on how the project is built. If you get an error,
+                // please inspect it and make sure that the number of "../" is correct.
+                // For exporting, this path should be simply @"Parsers"
+                string initPath = @"../../../../Parsers";
+                var parsers = Directory.GetFiles(initPath);
 
-                string targetPath = Path.Combine(parsersDirectory, fileName);
+                // Get Parsers directory
+                string parsersDirectory = Defaults.PARSERS;
 
-                if (!File.Exists(targetPath))
+                // Check if the directory already exists
+                if (!Directory.Exists(parsersDirectory))
                 {
-                    if (!Directory.Exists(parsersDirectory))
-                    {
-                        Directory.CreateDirectory(parsersDirectory);
-                    }
-
-                    File.Copy(@"../../../Parsers/" + fileName, targetPath);
+                    Directory.CreateDirectory(parsersDirectory);
                 }
+
+                // Go through all the found parsers
+                foreach (var file in parsers)
+                {
+                    // Get file name from the file path
+                    string fileName = file.Split('\\').Last<string>();
+
+                    // Get the target path where the file is to be copied to
+                    string targetPath = Path.Combine(parsersDirectory, fileName);
+
+                    // Check if the file already exists
+                    if (!File.Exists(targetPath))
+                    {
+                        // Copy file to the target directory
+                        File.Copy(initPath + "/" + fileName, targetPath);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                // Handle error exceptions
+                MessageBox.Show("Couldn't Setup Parsers: " + e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void SetupAutofills()
         {
-            var autofills = Directory.GetDirectories(@"../../../Autofills");
-
-            string autofillsDirectory = Defaults.AUTOFILLS;
-
-            if (!Directory.Exists(autofillsDirectory))
+            try
             {
-                Directory.CreateDirectory(autofillsDirectory);
-            }
+                // Get all the default Autofills that come included with the project.
+                // This path is for the debug version only. The number of "../" might
+                // change depending on how the project is built. If you get an error,
+                // please inspect it and make sure that the number of "../" is correct.
+                // For exporting, this path should be simply @"Autofills"
+                string initPath = @"../../../../Autofills";
+                var autofills = Directory.GetDirectories(initPath);
 
-            foreach (var directory in autofills)
-            {
-                foreach (var file in Directory.GetFiles(directory))
+                // Get Autofills directory
+                string autofillsDirectory = Defaults.AUTOFILLS;
+
+                // Create Autofills directory if it doesn't exist already
+                if (!Directory.Exists(autofillsDirectory))
                 {
-                    string fileName = file.Split('\\').Last<string>();
+                    Directory.CreateDirectory(autofillsDirectory);
+                }
 
-                    string targetPath = Path.Combine(autofillsDirectory, directory.Split('\\').Last<string>());
-
-                    if (!Directory.Exists(targetPath))
+                // Go through all the found autofill folders
+                foreach (var directory in autofills)
+                {
+                    // Go through all the files inside of the current folder
+                    foreach (var file in Directory.GetFiles(directory))
                     {
-                        Directory.CreateDirectory(targetPath);
-                    }
+                        // Get file name from the file path
+                        string fileName = file.Split('\\').Last<string>();
 
-                    targetPath = Path.Combine(targetPath, fileName);
+                        // Get the target directory where the file is to be copied to
+                        string targetPath = Path.Combine(autofillsDirectory, directory.Split('\\').Last<string>());
 
-                    if (!File.Exists(targetPath))
-                    {
-                        File.Copy(directory + "\\" + fileName, targetPath);
+                        // Check if the directory already exists
+                        if (!Directory.Exists(targetPath))
+                        {
+                            Directory.CreateDirectory(targetPath);
+                        }
+
+                        // Get target path for the current file
+                        targetPath = Path.Combine(targetPath, fileName);
+
+                        // Check if the file already exists
+                        if (!File.Exists(targetPath))
+                        {
+                            // Copy file to the target directory
+                            File.Copy(directory + "\\" + fileName, targetPath);
+                        }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                // Handle error exceptions
+                MessageBox.Show("Couldn't Setup Autofills: " + e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void SetupIcons()
         {
-            var iconsFiles = Directory.GetFiles(@"../../../Images");
-
-            string iconsDirectory = Defaults.ICONS;
-
-            if (!Directory.Exists(iconsDirectory))
+            try
             {
-                Directory.CreateDirectory(iconsDirectory);
-            }
+                // Get all the default icons that come included with the project.
+                // This path is for the debug version only. The number of "../" might
+                // change depending on how the project is built. If you get an error,
+                // please inspect it and make sure that the number of "../" is correct.
+                // For exporting, this path should be simply @"Images"
+                string initPath = @"../../../../Images";
+                var iconsFiles = Directory.GetFiles(initPath);
 
-            foreach (var file in iconsFiles)
-            {
-                string fileName = file.Split('\\').Last<string>();
+                // Get Icons directory
+                string iconsDirectory = Defaults.ICONS;
 
-                string targetPath = Path.Combine(iconsDirectory, fileName);
-
-                if (!File.Exists(targetPath))
+                // Check if the directory already exists
+                if (!Directory.Exists(iconsDirectory))
                 {
-                    File.Copy(@"../../../Images/" + fileName, targetPath);
+                    Directory.CreateDirectory(iconsDirectory);
                 }
+
+                // Go through all the found icons
+                foreach (var file in iconsFiles)
+                {
+                    // Get file name from the file path
+                    string fileName = file.Split('\\').Last<string>();
+
+                    // Get the target path where the file is to be copied to
+                    string targetPath = Path.Combine(iconsDirectory, fileName);
+
+                    // Check if the file already exists
+                    if (!File.Exists(targetPath))
+                    {
+                        // Copy file to the target directory
+                        File.Copy(initPath + "/" + fileName, targetPath);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                // Handle error exceptions
+                MessageBox.Show("Couldn't Setup Icons: " + e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void SetupCurfs()
         {
-            var curfs = Directory.GetFiles(@"../../../CURFs");
-
-            string curfsDirectory = Defaults.CURFS;
-
-            if (!Directory.Exists(curfsDirectory))
+            try
             {
-                Directory.CreateDirectory(curfsDirectory);
-            }
+                // Get all the default CURFs that come included with the project.
+                // This path is for the debug version only. The number of "../" might
+                // change depending on how the project is built. If you get an error,
+                // please inspect it and make sure that the number of "../" is correct.
+                // For exporting, this path should be simply @"CURFs"
+                string initPath = @"../../../../CURFs";
+                var curfs = Directory.GetFiles(initPath);
 
-            foreach (var file in curfs)
-            {
-                string fileName = file.Split('\\').Last<string>();
+                // Get Icons directory
+                string curfsDirectory = Defaults.CURFS;
 
-                string targetPath = Path.Combine(curfsDirectory, fileName);
-
-                if (!File.Exists(targetPath))
+                // Check if the directory already exists
+                if (!Directory.Exists(curfsDirectory))
                 {
-                    File.Copy(@"../../../CURFs/" + fileName, targetPath);
+                    Directory.CreateDirectory(curfsDirectory);
                 }
+
+                // Go through all the found CURFs
+                foreach (var file in curfs)
+                {
+                    // Get file name from the file path
+                    string fileName = file.Split('\\').Last<string>();
+
+                    // Get the target path where the file is to be copied to
+                    string targetPath = Path.Combine(curfsDirectory, fileName);
+
+                    // Check if the file already exists
+                    if (!File.Exists(targetPath))
+                    {
+                        // Copy file to the target directory
+                        File.Copy(initPath + "/" + fileName, targetPath);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                // Handle error exceptions
+                MessageBox.Show("Couldn't Setup CURFs: " + e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void SetupApplicationsFile()
         {
-            string newSetupPath = $"{Defaults.CONFIGURATE}\\Setup.ini";
-
-            if (!File.Exists(newSetupPath))
+            try
             {
-                File.Copy(@"../../../Setup.ini", newSetupPath);
+                // Get the target path where the file is to be copied to
+                string newSetupPath = $"{Defaults.CONFIGURATE}\\Setup.ini";
+
+                // Check if the file already exists
+                if (!File.Exists(newSetupPath))
+                {
+                    // Copy file to the target directory
+                    // This path is for the debug version only. The number of "../" might
+                    // change depending on how the project is built. If you get an error,
+                    // please inspect it and make sure that the number of "../" is correct.
+                    // For exporting, this path should be simply @"Setup.ini"
+                    File.Copy(@"../../../../Setup.ini", newSetupPath);
+                }
             }
-
-            var parser = new FileIniDataParser();
-            IniData data = parser.ReadFile(newSetupPath);
-            var allSections = data.Sections;
-
-            foreach (var section in allSections)
+            catch (Exception e)
             {
-                if (section.Keys["Active"] == "false") continue;
+                // Handle error exceptions
+                MessageBox.Show("Couldn't Setup Setup.ini: " + e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
-                var appSetupInfo = new ApplicationSetupInfoTO(section);
-                ApplicationInfo.Add(appSetupInfo);
+        public void UpdateApplications()
+        {
+            try
+            {
+                // Parse the Setup.ini file
+                var parser = new FileIniDataParser();
+                IniData data = parser.ReadFile($"{Defaults.CONFIGURATE}\\Setup.ini");
+                var allSections = data.Sections;
+
+                // Reset the ApplicationInfo list
+                ApplicationInfo.Clear();
+
+                // Go through all the sections (aka applications)
+                foreach (var section in allSections)
+                {
+                    // Skip all applications that have Active = false
+                    if (section.Keys["Active"] == "false") continue;
+
+                    // Add application to the ApplicationInfo list
+                    var appSetupInfo = new ApplicationSetupInfoTO(section);
+                    ApplicationInfo.Add(appSetupInfo);
+                }
+            }
+            catch (Exception e)
+            {
+                // Handle error exceptions
+                MessageBox.Show("Couldn't Setup Application's List: " + e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

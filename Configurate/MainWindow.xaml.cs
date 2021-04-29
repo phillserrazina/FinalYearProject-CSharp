@@ -19,38 +19,20 @@ namespace Configurate
     /// </summary>
     public partial class MainWindow : Window
     {
+        SetupManager setup;
+
         // CONSTRUCTORS
         public MainWindow()
         {
             InitializeComponent();
 
-            /*
-            ProcessStartInfo start = new ProcessStartInfo();
-            start.FileName = "C:\\Python34\\python.exe";
-            start.Arguments = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\cstest.py";
-            start.UseShellExecute = false;
-            start.RedirectStandardOutput = true;
-            using (Process process = Process.Start(start))
-            {
-                using (StreamReader reader = process.StandardOutput)
-                {
-                    string result = reader.ReadToEnd();
-                    MessageBox.Show(result);
-                }
-            }
-            */
-
-            //MessageBox.Show(FileUtils.ReadPython("persist.options.json", "JsonParser.py"));
-
-            //MessageBox.Show($"This computer has {Environment.ProcessorCount} processors.");
-
             // Run Configurate's Setup (Handles boilerplate work; Mostly setting up files in the AppData Folder)
-            SetupManager setup = new SetupManager();
+            setup = new SetupManager();
 
             // Initialize Events
-            ApplicationsManager.Initialize(setup.ApplicationInfo);
             ApplicationsManager.OnDirty += OnDirty;
             LoginWindow.OnSuccessfulLogin += OnLogin;
+            NewApplicationWindow.OnApplicationsChanged += SetUpApplications;
 
             // Initialize the Main Window's components
             SetUpApplications();
@@ -60,17 +42,57 @@ namespace Configurate
         // METHODS
         private void SetUpApplications()
         {
+            // Delete all buttons
+            ApplicationsStackPanel.Children.Clear();
+
+            // Update setup's applications, in case something has changed
+            setup.UpdateApplications();
+
+            // Update the Application's List
+            ApplicationsManager.Initialize(setup.ApplicationInfo);
+
+            // Create a Button for each found application
             foreach (var app in ApplicationsManager.ApplicationsList)
             {
                 if (File.Exists(app.Path))
-                    ApplicationsStackPanel.Children.Add(new CustomButton(app, ref SettingsStackPanel, ref TopBar).Button);
+                {
+                    // Create Button UI
+                    var newAppButton = new ApplicationButton(app, ref SettingsStackPanel, ref TopBar);
+                    var buttonUI = newAppButton.Button;
+
+                    // Add button to the panel
+                    ApplicationsStackPanel.Children.Add(buttonUI);
+                }
             }
+
+            // Create "Add New Application" Button
+            CreateNewApplicationButton();
         }
 
         private void SetUpButtons()
         {
             SaveButton.Click += new RoutedEventHandler(SaveFileButton);
-            ShareButton.Click += new RoutedEventHandler(ShareFile);
+            // Enable this if a local database is available
+            // ShareButton.Click += new RoutedEventHandler(ShareFile);
+        }
+
+        private void CreateNewApplicationButton()
+        {
+            ApplicationsStackPanel.Children.Add(new StackPanel { Height = 20 });
+
+            var newApplicationButton = new Button
+            {
+                Height = 30,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                Content = "Add New Application",
+                Margin = new Thickness(4),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                FontWeight = FontWeights.Bold
+            };
+
+            newApplicationButton.Click += OpenNewApplicationWindow;
+
+            ApplicationsStackPanel.Children.Add(newApplicationButton);
         }
 
         #region Button Functions
@@ -78,23 +100,21 @@ namespace Configurate
 
         private void Autofill(object sender, RoutedEventArgs eventArgs)
         {
-            uint currentsp, Maxsp;
-
-            using (ManagementObject Mo = new ManagementObject("Win32_Processor.DeviceID='CPU0'"))
-            {
-                currentsp = (uint)(Mo["CurrentClockSpeed"]);
-                Maxsp = (uint)(Mo["MaxClockSpeed"]);
-            }
-
             string filePath = $"{Defaults.AUTOFILLS}\\{ApplicationsManager.CurrentApplication.Name}\\";
 
+            // Perform benchmarking process, and select the appropriate file.
+            // In a realease scenario, this would be done by running
+            // performance tests external to Configurate
             if (Environment.ProcessorCount <= 4) filePath += "Low";
             else if (Environment.ProcessorCount >= 16) filePath += "High";
             else filePath += "Mid";
 
             filePath += ApplicationsManager.CurrentApplication.Extension;
 
+            // Replace the current file
             ReplaceCurrentFile(filePath);
+
+            // Mark application as dirty
             ApplicationsManager.OnDirty?.Invoke(true);
         }
 
@@ -136,6 +156,7 @@ namespace Configurate
 
                 if (saveSettingsResult == MessageBoxResult.Yes) SaveCurrentFile();
                 else if (saveSettingsResult == MessageBoxResult.Cancel) return;
+                else if (saveSettingsResult == MessageBoxResult.No) ApplicationsManager.OnDirty?.Invoke(false);
             }
 
             TopBar.Visibility = Visibility.Collapsed;
@@ -173,7 +194,7 @@ namespace Configurate
                 dic.Add(setting.Label.Content.ToString(), setting.Box.Text.ToString());
             }
 
-            bool exported = FileUtils.SaveAs(dic, ApplicationsManager.CurrentApplication.Path);
+            bool exported = FileUtils.SaveAs(ApplicationsManager.CurrentApplication.Path);
             if (exported) MessageBox.Show("File Exported Successfuly.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -195,6 +216,13 @@ namespace Configurate
             UpdateSharePosts();
         }
 
+        private void OpenNewApplicationWindow(object sender, RoutedEventArgs eventArgs)
+        {
+            NewApplicationWindow newWindow = new NewApplicationWindow();
+            newWindow.Show();
+            IsHitTestVisible = false;
+        }
+
         public void OnLogin()
         {
             ShareGroupBox.Header = $"Shared { ApplicationsManager.CurrentApplication.Name } Settings";
@@ -208,15 +236,19 @@ namespace Configurate
 
         private void UpdateSharePosts()
         {
+            // Clear the Posts UI
             SharePostsStackPanel.Children.Clear();
-            //SharePostsStackPanel.Children.Add(UIManager.CreateSharedPostButton("Phill", "This is a test post generated by code.", new RoutedEventHandler((object sender, RoutedEventArgs eventArgs) => { })));
-            //SharePostsStackPanel.Children.Add(UIManager.CreateSharedPostButton("Phill Again", "This is another test post generated by code but with more text to see how the boxes handle wrapping.", new RoutedEventHandler((object sender, RoutedEventArgs eventArgs) => { })));
 
+            // Get all posts from game
             var (posts, message) = NetworkManager.GetPostsOfGame(ApplicationsManager.CurrentApplication.Name);
 
+            // Go through all the found posts
             foreach (var post in posts)
             {
-                SharePostsStackPanel.Children.Add(UIManager.CreateSharedPostButton(post.Owner, post.Description, new RoutedEventHandler((object sender, RoutedEventArgs eventArgs) => {
+                // Add a share button 
+                SharePostsStackPanel.Children.Add(UIManager.CreateSharedPostButton(post, new RoutedEventHandler((object sender, RoutedEventArgs eventArgs) => {
+                    // Get file from temporary server. In a release product, this should fetch a file
+                    // from a server stored in a cloud
                     string filePath = $"{Defaults.CONFIGURATE}\\Server\\{post.ID}";
                     filePath += ApplicationsManager.CurrentApplication.Extension;
 
@@ -226,7 +258,10 @@ namespace Configurate
                         return;
                     }
 
+                    // Replace the current file with the fetched file
                     ReplaceCurrentFile(filePath);
+
+                    // Mark Application as dirty
                     ApplicationsManager.OnDirty?.Invoke(true);
                 })));
             }
@@ -289,26 +324,38 @@ namespace Configurate
 
         private void ReplaceCurrentFile(string newPath)
         {
+            // Parse the new file
             var realDic = FileUtils.Parse(newPath, ApplicationsManager.CurrentApplication.ParserPath);
             var curfRealDic = new Dictionary<string, string>();
             var curfDic = FileUtils.ParseCurf(ApplicationsManager.CurrentApplication.CurfPath, realDic, ref curfRealDic);
+
+            // Handle CURF Parsing failure
             if (curfDic == null)
             {
                 MessageBox.Show("CURF File Error. Please try again.", "Oops!");
                 return;
             }
 
+            // Clear the current settings panel
             SettingsStackPanel.Children.Clear();
+            
+            // Setup Grid
             var scrollView = SettingsStackPanel.Parent as ScrollViewer;
             var grid = scrollView.Parent as Grid;
             grid.Visibility = Visibility.Hidden;
+
+            // Setup Groupbox
             var groupBox = grid.Parent as GroupBox;
             groupBox.Header = "Select an Application";
 
+            // Final UI Setups
             groupBox.Header = ApplicationsManager.CurrentApplication.Name;
             grid.Visibility = Visibility.Visible;
+
+            // Reset the ApplicationManager's SettingsList
             ApplicationsManager.SettingsList = new List<TemplateObjects.SettingsTO>();
 
+            // Populate the SettingsList with the new values
             foreach (var keyPair in curfDic)
             {
                 var settingsObj = UIManager.CreateSettingsObject(keyPair.Key, keyPair.Value);
@@ -322,17 +369,22 @@ namespace Configurate
 
         public void SaveCurrentFile()
         {
-            var dic = new Dictionary<string, string>();
+            // Create map that connects the real settings to the displayed label
+            var map = new Dictionary<string, string>();
 
+            // Populate the map
             foreach (var setting in ApplicationsManager.SettingsList)
             {
-                dic.Add(setting.RealPath, setting.Box.Text.ToString());
+                map.Add(setting.RealPath, setting.Box.Text.ToString());
             }
 
+            // Mark the application as non-dirty anymore
             ApplicationsManager.OnDirty?.Invoke(false);
 
-            FileUtils.Save(dic, ApplicationsManager.CurrentApplication.Path, ApplicationsManager.CurrentApplication.SaverPath);
-            //MessageBox.Show("File Saved Successfuly", "Success");
+            // Save the application
+            FileUtils.Save(map, 
+                            ApplicationsManager.CurrentApplication.Path, 
+                            ApplicationsManager.CurrentApplication.SaverPath);
         }
 
         private void OnDirty(bool isDirty)
@@ -340,26 +392,10 @@ namespace Configurate
             SettingsGroupBox.Header = ApplicationsManager.CurrentApplication.Name + (isDirty ? "*" : "");
         }
 
-        private void ImportFileManually()
-        {
-            string fileType = FileUtils.GetFileType(ApplicationsManager.CurrentApplication.Path);
-            string windowTitle = "Import File";
-
-            string newPath = FileUtils.GetNewFilePath(fileType, windowTitle).Replace('\\', '/');
-
-            if (string.IsNullOrEmpty(newPath))
-            {
-                MessageBox.Show("Couldn't Import File. Please try again.", "Oops!");
-                return;
-            }
-
-            ApplicationsManager.OnDirty?.Invoke(true);
-            ReplaceCurrentFile(newPath);
-        }
-
         private void OnTextChange(object sender, RoutedEventArgs e)
         {
             string searchParameter = SearchBox.Text.ToLower();
+            // Disable all settings that don't match the currently searched parameter
             foreach(var setting in ApplicationsManager.SettingsList)
             {
                 setting.SetVisibility(setting.Label.Content.ToString().ToLower().Contains(searchParameter));

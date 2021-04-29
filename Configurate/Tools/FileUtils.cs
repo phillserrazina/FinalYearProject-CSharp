@@ -1,38 +1,42 @@
 ﻿using IniParser;
 using IniParser.Model;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Text.Json;
+using System.Xml.Linq;
 
 using System;
 using System.IO;
 using System.Windows;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 using Microsoft.Win32;
 
-using System.Linq;
-using System.Xml.Linq;
-using System.Reflection;
-
-using System.Diagnostics;
-
 namespace Configurate.Tools
 {
-    class FileUtils
+    static class FileUtils
     {
         // METHODS
         public static Dictionary<string, string> Parse(string path, string parserFile)
         {
-            switch (parserFile)
+            // Attempt to use source parsers
+            try
             {
-                case "Ini": return ParseIni(path);
-                case "Json": return ParseJson(path);
-                case "Xml": return ParseXml(path);
+                switch (parserFile.ToLower())
+                {
+                    case "ini": return ParseIni(path);
+                    case "json": return ParseJson(path);
+                    case "xml": return ParseXml(path);
                 
-                default: break;
+                    default: break;
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Something went wrong with the parsing process! Please try a different parser.\n\n Full Error Message:\n" + e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
             }
 
+            // If none of the source parsers work, try external parsers
             try
             {
                 var result = PythonParse(parserFile, path);
@@ -55,52 +59,37 @@ namespace Configurate.Tools
 
         public static void Save(Dictionary<string, string> dic, string path, string parserFile)
         {
-            switch (parserFile)
-            {
-                case "Ini":
-                    try
-                    {
-                        SaveIni(dic, path); 
-                        MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("There was an error. Try again.", "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    return;
-
-                case "Json":
-                    try
-                    {
-                        SaveJson(dic, path);
-                        MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("There was an error. Try again.", "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    return;
-
-                case "Xml":
-                    try
-                    {
-                        SaveXml(dic, path);
-                        MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("There was an error. Try again.", "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    return;
-
-                default: break;
-            }
-
+            // Attempt to use source savers
             try
             {
-                string args = JsonConvert.SerializeObject(dic);
-                MessageBox.Show(args);
+                switch (parserFile.ToLower())
+                {
+                    case "ini": 
+                        SaveIni(dic, path);
+                        MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                        break;
+                    case "json": 
+                        SaveJson(dic, path);
+                        MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                        break;
+                    case "xml": 
+                        SaveXml(dic, path);
+                        MessageBox.Show("Saved Successfully.", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                        break;
 
+                    default: break;
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("There was an error:\n\n" + e.Message, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            // If none of the source savers work, try external savers
+            try
+            {
+                // Convert settings dictionary into a json object
+                string args = JsonConvert.SerializeObject(dic);
                 var result = PythonSave(parserFile, path, args);
 
                 string errorCheck = result.Substring(0, 6);
@@ -118,12 +107,14 @@ namespace Configurate.Tools
             }
         }
 
-        public static bool SaveAs(Dictionary<string, string> dic, string path)
+        public static bool SaveAs(string path)
         {
-            var fileToExport = GetFileText(dic, path);
-
+            // Get file's text
+            var fileToExport = GetFileText(path);
+            // Get file's type
             string fileType = Path.GetExtension(path);
 
+            // Open a dialog to export a file of the same type as the intended file
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
@@ -132,6 +123,7 @@ namespace Configurate.Tools
                 DefaultExt = "." + fileType
             };
 
+            // Write all text of the target file to the new file location
             if (saveFileDialog.ShowDialog() == true)
             {
                 File.WriteAllText(saveFileDialog.FileName, fileToExport);
@@ -143,6 +135,7 @@ namespace Configurate.Tools
 
         public static string GetNewFilePath(string fileType, string windowTitle)
         {
+            // Open a dialog to export a file of the same type as the intended file
             var dialog = new OpenFileDialog
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
@@ -151,10 +144,12 @@ namespace Configurate.Tools
                 DefaultExt = "." + fileType
             };
 
+            // Get result of the users selection in the dialog
             bool? result = dialog.ShowDialog();
 
             if (result == true)
             {
+                // Return the select dialog path
                 return dialog.FileName;
             }
 
@@ -163,7 +158,7 @@ namespace Configurate.Tools
 
         public static string GetFileType(string path) => Path.GetExtension(path);
 
-        private static string GetFileText(Dictionary<string, string> dic, string path)
+        private static string GetFileText(string path)
         {
             var fileType = Path.GetExtension(path);
 
@@ -192,7 +187,14 @@ namespace Configurate.Tools
                 var allKeyPairs = section.Keys;
 
                 foreach (var keyPair in allKeyPairs)
-                    answer.Add(keyPair.KeyName, keyPair.Value);
+                {
+                    //string key = $"[{section.SectionName}] {keyPair.KeyName}";
+                    string key = keyPair.KeyName;
+                    if (!answer.ContainsKey(key))
+                    {
+                        answer.Add(key, keyPair.Value);
+                    }
+                }
             }
 
             return answer;
@@ -271,9 +273,13 @@ namespace Configurate.Tools
         {
             var answer = new Dictionary<string, Dictionary<string, string>>();
 
+            // If the provided dictionary doesn't exist or is empty,
+            // then there is no point in running this method
             if (currentDictionary == null) return null;
             if (currentDictionary.Count == 0) return null;
 
+            // If the CURF does not exist, just return a dictionary
+            // with the original keys, instead of the CURF keys
             if (!File.Exists(curfPath))
             {
                 foreach (var key in currentDictionary.Keys)
@@ -287,28 +293,36 @@ namespace Configurate.Tools
 
             string line = "";
 
+            // Read the CURF
             using (var reader = new StreamReader(curfPath))
             {
-                
+                // Go through all the lines
                 while (line != null)
                 {
+                    // Read the current line
                     line = reader.ReadLine();
+                    
+                    // If the line isn't empty
                     if (!string.IsNullOrEmpty(line))
                     {
+                        // Get the original and the properties
                         var valuePair = line.Split('=');
                         string rawVarName = valuePair[0];
                         string properties = valuePair[1];
 
+                        // Get all the properties (new name, description, etç)
                         string[] propertyList = properties.Split('[');
                         string newVarName = propertyList[0];
 
                         string description = "No Description Available";
 
+                        // Get description
                         if (propertyList.Length > 1)
                         {
                             description = propertyList[1].Substring(0, propertyList[1].Length - 1);
                         }
 
+                        // Populate dictionary with the new variable name
                         if (currentDictionary.ContainsKey(rawVarName))
                         {
                             var propertiesDic = new Dictionary<string, string>()
@@ -350,6 +364,17 @@ namespace Configurate.Tools
             IniData data = parser.ReadFile(path);
             var allSections = data.Sections;
 
+            /*
+            foreach (var pair in dic)
+            {
+                var split = pair.Key.Split(']');
+                string section = split[0].Substring(1, split[0].Length-1);
+                string key = split[1].Substring(1, split[1].Length-1);
+
+                data[section][key] = pair.Value;
+            }
+            */
+            
             foreach (var section in allSections)
             {
                 var allKeyPairs = section.Keys;
@@ -361,6 +386,7 @@ namespace Configurate.Tools
                     keyPair.Value = dic[keyPair.KeyName];
                 }
             }
+            
 
             parser.WriteFile(path, data);
         }
@@ -401,63 +427,12 @@ namespace Configurate.Tools
                 {
                     if (dic.ContainsKey(element.Name.LocalName))
                     {
-                        root.SetElementValue(element.Name.LocalName, dic[element.Name.LocalName]);
+                        element.Value = dic[element.Name.LocalName];
                     }
                 }
             }
         }
 
-        // ============================
-        // item["test"]["nth"] = "updated";
-        // ============================
-
-        /*
-        private static void JsonSaveHelper(JProperty prop, List<string> additionalPath, ref JObject obj, Dictionary<string, string> dic)
-        {
-            if (prop.Value.Type == JTokenType.Object)
-            {
-                var newObj = prop.Value.ToObject<JObject>();
-                additionalPath.Add(prop.Name);
-
-                foreach (var newProp in newObj.Properties().ToList())
-                {
-                    JsonSaveHelper(newProp, additionalPath, ref newObj, dic);
-                }
-            }
-
-            else if (prop.Value.Type == JTokenType.Array)
-            {
-                if (obj.ContainsKey(prop.Name) && dic.ContainsKey(prop.Name))
-                {
-                    JArray newArr = new JArray();
-
-                    var split = dic[prop.Name].Split(',');
-
-                    for (int i = 0; i < split.Length; i++)
-                    {
-                        split[i] = split[i].Trim();
-                        newArr.Add(split[i]);
-                    }
-
-                    obj[prop.Name] = new JArray(newArr);
-                    //MessageBox.Show(prop.Name + ": " + obj[prop.Name]);
-                }
-                else MessageBox.Show("Object doesn't contain " + prop.Name + $".\nProp: {prop.Name} (Parent: {prop.Parent.Path})");
-            }
-
-            else
-            {
-
-                if (obj.ContainsKey(prop.Name) && dic.ContainsKey(prop.Name))
-                {
-                    obj[prop.Name] = dic[prop.Name];
-                    //MessageBox.Show(prop.Name + ": " + obj[prop.Name]);
-                }
-                else MessageBox.Show("Object doesn't contain " + prop.Name + $".\nProp: {prop.Name} (Root: {prop.Root.Path})");
-
-            }
-        }
-        */
         #endregion
 
         // Returns a json representation of the dictionary
@@ -474,7 +449,6 @@ namespace Configurate.Tools
                 using (StreamReader reader = process.StandardOutput)
                 {
                     string result = reader.ReadToEnd();
-                    //MessageBox.Show(result);
                     return result;
                 }
             }
@@ -485,7 +459,6 @@ namespace Configurate.Tools
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "C:\\Python34\\python.exe";
             start.Arguments = parserFileName + " \"" + filePath + "\" \'" + jsonArgs.Replace("\"", "\"\"\"") + "\'";
-            MessageBox.Show(start.Arguments);
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
             
@@ -497,69 +470,6 @@ namespace Configurate.Tools
                     return result;
                 }
             }
-        }
-    }
-
-
-    public class DDTestFormat
-    {
-        public class Values
-        {
-            public int[] controller_enabled;
-            public int[] hold_required_in_dungeon;
-            public int[] left_stick_interact;
-            public int[] controller_vibration;
-            public int[] fullscreen;
-            public int[] monitor_number;
-            public int[] resolution;
-            public int[] gamma;
-            public int[] combat_pivot_camera;
-            public int[] blur;
-            public string subtitles;
-            public int[] mute_when_window_not_focussed;
-            public int[] master_volume;
-            public int[] sfx_volume;
-            public int[] music_volume;
-            public int[] narration_volume;
-            public int[] video_volume;
-            public int[] tutorial;
-            public int[] metrics;
-            public int[] extra_bark_time;
-            public int[] bark_dismissal;
-            public int[] roster_sort_party_to_top;
-            public int[] debug_output;
-            public string language;
-            public int[] map_follow_party;
-            public int[] framerate;
-
-            public Values(Dictionary<string, string> dic)
-            {
-                FieldInfo[] fields = typeof(Values).GetFields(BindingFlags.Public | BindingFlags.Instance);
-
-                foreach (var field in fields)
-                {
-                    if (field.FieldType == typeof(int[]))
-                    {
-                        field.SetValue(this, dic[field.Name].Split(", ").Select(n => Convert.ToInt32(n)).ToArray());
-                    }
-                    else field.SetValue(this, dic[field.Name]);
-                }
-            }
-        }
-
-        public class Data
-        {
-            public Values values;
-        }
-
-        public int version;
-        public Data data;
-
-        public DDTestFormat(Dictionary<string, string> dic)
-        {
-            version = int.Parse(dic["version"]);
-            data = new Data();
-            data.values = new Values(dic);
         }
     }
 }

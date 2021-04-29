@@ -2,9 +2,19 @@
 {
     class UserTO
     {
-        public string Username { get; set; }
-        public string Userpsw { get; set; }
-        public string Posts { get; set; }
-        public string RatedPosts { get; set; }
+        // VARIABLES
+        public readonly string Username;
+        public readonly string Userpsw;
+        public readonly string Posts;
+        public readonly string RatedPosts;
+
+        // CONSTRUCTOR
+        public UserTO()
+        {
+            Username = "Default";
+            Userpsw = "Default";
+            Posts = "-1";
+            RatedPosts = "-1";
+        }
     }
 }

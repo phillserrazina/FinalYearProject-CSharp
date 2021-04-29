@@ -2,9 +2,19 @@
 {
     class PostTO
     {
-        public int ID { get; set; }
-        public string Owner { get; set; }
-        public string Description { get; set; }
-        public string Ratings { get; set; }
+        // VARIABLES
+        public readonly int ID;
+        public readonly string Owner;
+        public readonly string Description;
+        public readonly string Ratings;
+
+        // CONSTRUCTOR
+        public PostTO()
+        {
+            ID = -1;
+            Owner = "Default";
+            Description = "Default";
+            Ratings = "0,0";
+        }
     }
 }

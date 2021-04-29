@@ -26,6 +26,7 @@ namespace Configurate
         {
             InitializeComponent();
 
+            // Automatically Populate the fields for easier testing
             UsernameTextBox.Text = "PhillAdmin";
             PasswordTextBox.Password = "admin";
         }
@@ -37,8 +38,10 @@ namespace Configurate
 
         private void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
+            // Validate login
             var (result, resultMessage) = NetworkManager.GetUser(UsernameTextBox.Text, PasswordTextBox.Password);
 
+            // Handle login success
             if (result != null)
             {
                 NetworkManager.LogIn(result);
@@ -46,6 +49,8 @@ namespace Configurate
 
                 Close();
             }
+
+            // Handle login failure
             else
             {
                 MessageBox.Show(resultMessage, "Oops!", MessageBoxButton.OK, MessageBoxImage.Error);

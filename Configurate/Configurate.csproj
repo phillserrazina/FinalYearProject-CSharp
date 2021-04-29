@@ -5,6 +5,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,8 +34,6 @@
     <PackageReference Include="Dapper" Version="2.0.78" />
     <PackageReference Include="ini-parser" Version="2.5.2" />
     <PackageReference Include="IronPython" Version="2.7.11" />
-    <PackageReference Include="MySql.Data" Version="8.0.22" />
-    <PackageReference Include="MySql.Web" Version="8.0.22" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
@@ -42,8 +43,6 @@
   <ItemGroup>
     <Resource Include="Images\Skyrim Special Edition_Logo.png" />
     <Resource Include="Images\Skyrim_Logo.png" />
-    <Resource Include="Images\Witcher 3_Logo.png" />
-    <Resource Include="Images\Darkest Dungeon_Logo.png" />
     <Resource Include="Images\Sun Rings_Logo.png" />
   </ItemGroup>
 

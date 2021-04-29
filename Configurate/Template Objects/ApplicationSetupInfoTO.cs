@@ -5,6 +5,7 @@ namespace Configurate.TemplateObjects
 {
     class ApplicationSetupInfoTO
     {
+        // VARIABLES
         public readonly string Name;
         public readonly string Path;
         public readonly string ParserFile;
@@ -15,6 +16,7 @@ namespace Configurate.TemplateObjects
         public readonly string Publisher;
         public readonly string ReleaseDate;
 
+        // CONSTRUCTOR
         public ApplicationSetupInfoTO(SectionData data)
         {
             Name = data.SectionName;

@@ -1,8 +1,8 @@
 ﻿using System.Windows;
-using System.Windows.Media;
 using System.Windows.Controls;
 using System.Collections.Generic;
 using Configurate.TemplateObjects;
+using System.Linq;
 
 namespace Configurate.Managers
 {
@@ -79,6 +79,7 @@ namespace Configurate.Managers
 
         public static Button CreateApplicationButton(ApplicationInfoTO app, RoutedEventHandler buttonEvent)
         {
+            // Setup Grid
             var cdef1 = new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) };
             var cdef2 = new ColumnDefinition { Width = new GridLength(90, GridUnitType.Star) };
 
@@ -87,6 +88,7 @@ namespace Configurate.Managers
             newGrid.ColumnDefinitions.Add(cdef1);
             newGrid.ColumnDefinitions.Add(cdef2);
 
+            // Setup Application's Icon
             var newImage = new Image
             {
                 Name = "Image",
@@ -95,6 +97,7 @@ namespace Configurate.Managers
                 Source = app.Icon
             };
 
+            // Setup Application's Label
             var newLabel = new Label
             {
                 Name = "Label",
@@ -106,11 +109,13 @@ namespace Configurate.Managers
                 FontWeight = FontWeights.Bold
             };
 
+            // Assign elements to the grid and adjust grid's alignment
             Grid.SetColumn(newImage, 0);
             Grid.SetColumn(newLabel, 1);
             newGrid.Children.Add(newImage);
             newGrid.Children.Add(newLabel);
 
+            // Create the button by using the grid as its content
             var newButton = new Button
             {
                 Height = 30,
@@ -124,8 +129,9 @@ namespace Configurate.Managers
             return newButton;
         }
 
-        public static Button CreateSharedPostButton(string postOwner, string postContent, RoutedEventHandler buttonEvent)
+        public static Button CreateSharedPostButton(PostTO post, RoutedEventHandler buttonEvent)
         {
+            // Create a dock container
             var dockPanel = new DockPanel
             {
                 HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -134,34 +140,44 @@ namespace Configurate.Managers
                 Height = double.NaN
             };
 
+            // Create the post's Owner text
             var ownerLabel = new Label
             {
                 Name = "Label",
-                Content = postOwner,
+                Content = post.Owner,
                 Width = double.NaN,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Center,
                 FontWeight = FontWeights.Bold
             };
 
+            // Create the post's Description text
             var descriptionText = new TextBlock
             {
-                Text = postContent,
+                Text = post.Description,
                 Margin = new Thickness(5, 0, 5, 0),
                 TextWrapping = TextWrapping.Wrap,
                 VerticalAlignment = VerticalAlignment.Stretch
             };
 
+            // Create the post's Rating text
+            var ratingSplit = post.Ratings.Split(',');
+            float sum = float.Parse(ratingSplit[0]);
+            int amount = int.Parse(ratingSplit[1]);
+
+            int average = amount == 0 ? 0 : (int)sum / amount;
+
             var ratingLabel = new Label
             {
                 Name = "Label",
-                Content = "Rating: *****",
+                Content = "Rating: " + string.Concat(Enumerable.Repeat("*", average)),
                 Width = double.NaN,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Bottom
             };
 
+            // Assign elements to the dock container and adjust container's alignment
             dockPanel.Children.Add(ownerLabel);
             dockPanel.Children.Add(descriptionText);
             dockPanel.Children.Add(ratingLabel);
@@ -170,6 +186,7 @@ namespace Configurate.Managers
             DockPanel.SetDock(descriptionText, Dock.Top);
             DockPanel.SetDock(ratingLabel, Dock.Bottom);
 
+            // Create the button with the dock container as its content
             var button = new Button
             {
                 Margin = new Thickness(2),
