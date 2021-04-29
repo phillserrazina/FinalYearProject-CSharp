@@ -1,12 +1,14 @@
 ﻿using Dapper;
+
 using System;
 using System.Data;
 using System.Linq;
-using Configurate.Tools;
 using System.Data.SqlClient;
-using System.Collections.Generic;
-using Configurate.TemplateObjects;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
+using Configurate.Tools;
+using Configurate.TemplateObjects;
 
 namespace Configurate.Managers
 {

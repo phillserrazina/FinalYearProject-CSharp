@@ -1,16 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Windows;
-using Configurate.Managers;
-using Configurate.Tools;
-using System.Diagnostics;
+﻿using System;
 using System.IO;
+using System.Windows;
+using System.Diagnostics;
 using System.Windows.Controls;
-using System;
-using System.Reflection;
-using System.Linq;
-using System.Management;
-using IronPython.Hosting;
-using System.Text;
+using System.Collections.Generic;
+
+using Configurate.Tools;
+using Configurate.Managers;
 
 namespace Configurate
 {

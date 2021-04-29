@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 using System.Collections.Generic;
+
 using Configurate.Tools;
 using Configurate.TemplateObjects;
-using System.Linq;
-using System.Windows.Controls;
-using System.Windows;
+
 using IniParser;
 using IniParser.Model;
 
