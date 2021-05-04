@@ -406,8 +406,10 @@ namespace Configurate
 
         private void OpenAboutWindow(object sender, RoutedEventArgs e)
         {
+            // Get Current Application
             var app = ApplicationsManager.CurrentApplication;
 
+            // Fill out the information labels
             PathText.Text = app.Path;
             ParserText.Text = app.FinalParserPath.Contains(".py") ? $"External ({app.FinalParserPath})" : $"Source ({app.FinalParserPath})";
             SaverText.Text = app.FinalSaverPath.Contains(".py") ? $"External ({app.FinalSaverPath})" : $"Source ({app.FinalSaverPath})";
@@ -417,7 +419,10 @@ namespace Configurate
             PublisherText.Text = app.Publisher;
             ReleaseDateText.Text = app.ReleaseDate;
 
+            // Change the Header Title
             AppInfoGroupBox.Header = app.Name + " (About)";
+
+            // Actually display the About panel
             TriggerLeftWindow("Info");
         }
 
